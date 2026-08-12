@@ -1,0 +1,163 @@
+/* Sticky header, wordmark, navigation and the mobile disclosure menu. */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background-color: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.site-header[data-scrolled="true"] {
+  background-color: color-mix(in srgb, var(--color-surface) 96%, transparent);
+  border-bottom-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--header-height);
+}
+
+/* --- Wordmark ---------------------------------------------------------- */
+
+.wordmark {
+  color: var(--color-ink);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  text-decoration: none;
+}
+
+.wordmark__accent {
+  color: var(--color-accent);
+}
+
+/* --- Navigation -------------------------------------------------------- */
+
+.site-nav__list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.site-nav__link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.site-nav__link:hover {
+  color: var(--color-accent-strong);
+  background-color: var(--color-accent-soft);
+}
+
+/* --- Mobile menu button ------------------------------------------------ */
+
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-4);
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: border-color var(--transition-fast),
+    background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.nav-toggle:hover {
+  color: var(--color-accent-strong);
+  background-color: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+.nav-toggle__icon {
+  display: grid;
+  gap: 4px;
+  width: 1.125rem;
+}
+
+.nav-toggle__bar {
+  height: 2px;
+  background-color: currentColor;
+  border-radius: var(--radius-pill);
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle__bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle__bar:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle__bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* --- Mobile and tablet layout (<= 1024px) ------------------------------ */
+
+@media (max-width: 1024px) {
+  .site-nav {
+    position: absolute;
+    top: 100%;
+    right: var(--container-gutter);
+    left: var(--container-gutter);
+    max-height: calc(100dvh - var(--header-height) - var(--space-8));
+    padding: var(--space-3);
+    overflow-y: auto;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* display:none also removes the collapsed menu from the a11y tree. */
+  .site-nav[data-open="false"] {
+    display: none;
+  }
+
+  .site-nav__list {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+
+  .site-nav__link {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-base);
+  }
+}
+
+/* --- Desktop layout (>= 1025px) ---------------------------------------- */
+
+@media (min-width: 1025px) {
+  .nav-toggle {
+    display: none;
+  }
+
+  .site-nav {
+    display: block;
+  }
+}

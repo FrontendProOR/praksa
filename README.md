@@ -97,8 +97,9 @@ Prerequisites for the whole repository:
 | [`CLAUDE.md`](CLAUDE.md) | Full specification: stack, data model, REST API contract, security rules, day-by-day plan and progress checkboxes |
 | [`docs/day-01-onboarding.md`](docs/day-01-onboarding.md) | Onboarding notes: development lifecycle, project scopes, MERN objective, tools and working rules |
 | [`docs/day-02-mern-notes.md`](docs/day-02-mern-notes.md) | Verified development environment (tool versions), MERN learning notes (Node/npm, Express, REST, MongoDB, Mongoose, React), MongoDB URI approach and manual API testing workflow |
+| [`docs/project-01-requirements.md`](docs/project-01-requirements.md) | Agency website requirements: sections, responsive rules, accessibility bar, out-of-scope list and per-day implementation status |
 
-Further documents (project requirements, API reference, manual test checklist) are added on their scheduled days.
+Further documents (Project 2 requirements, API reference, manual test checklist) are added on their scheduled days.
 
 ---
 
