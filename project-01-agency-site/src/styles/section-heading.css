@@ -1,0 +1,29 @@
+/* Shared eyebrow + title + intro block used by every content section. */
+
+.section-heading {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 46rem;
+  margin-bottom: var(--space-10);
+}
+
+.section-heading__title {
+  max-width: 20ch;
+}
+
+.section-heading__description {
+  color: var(--color-body);
+}
+
+/* On a dark section the same block inherits the surface's text colours. */
+.section--dark .section-heading__title {
+  color: var(--color-on-ink);
+}
+
+.section--dark .section-heading__description {
+  color: var(--color-on-ink-muted);
+}
+
+.section--dark .eyebrow {
+  color: var(--color-accent-light);
+}

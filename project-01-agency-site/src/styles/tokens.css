@@ -28,6 +28,12 @@
   --color-accent-soft: #eef1ff;
   --color-accent-contrast: #ffffff;
 
+  /* --- Colour: text and borders on dark surfaces ------------------------ */
+  --color-on-ink: #eef1f8;
+  --color-on-ink-muted: #a9b4cc;
+  --color-on-ink-border: #23304d;
+  --color-accent-light: #93a6ff;
+
   /* --- Typography ------------------------------------------------------ */
   --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
     sans-serif;

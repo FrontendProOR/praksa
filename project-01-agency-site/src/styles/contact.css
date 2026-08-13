@@ -1,0 +1,65 @@
+/* Contact section: enquiry guidance and location panel. */
+
+.contact__inner {
+  display: grid;
+  gap: clamp(var(--space-8), 5vw, var(--space-12));
+  align-items: start;
+}
+
+.contact__intro .section-heading {
+  margin-bottom: var(--space-8);
+}
+
+.contact__subtitle {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.contact__checklist {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 40rem;
+}
+
+.contact__checklist-item {
+  position: relative;
+  padding-left: var(--space-6);
+  color: var(--color-body);
+}
+
+/* Decorative marker, drawn rather than typed so it is not announced. */
+.contact__checklist-item::before {
+  content: "";
+  position: absolute;
+  top: 0.6em;
+  left: 0;
+  width: var(--space-2);
+  height: var(--space-2);
+  background-color: var(--color-accent);
+  border-radius: var(--radius-pill);
+}
+
+.contact__panel {
+  gap: var(--space-2);
+  background-color: var(--color-surface-alt);
+}
+
+.contact__panel .contact__subtitle {
+  margin-bottom: var(--space-1);
+}
+
+.contact__location {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+}
+
+@media (min-width: 1025px) {
+  .contact__inner {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+}

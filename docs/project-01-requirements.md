@@ -97,14 +97,23 @@ No backend, database, API calls, authentication, routing library, CMS, analytics
 - `Hero` component: eyebrow, `h1` positioning statement, lead paragraph, both required CTAs, and a decorative CSS-only composition;
 - site content as structured data (`src/data/site.js`): company facts, navigation links, hero copy.
 
-### Day 04 - planned
+### Day 04 - delivered
 
-Sections 3-7 and 9 from the table above, the shared `SectionHeading` component (its duplication first appears with those sections), and the full responsive pass over section content.
+- shared `SectionHeading` component (eyebrow + `h2` + optional intro), now that six sections repeat that structure;
+- shared `.card` primitive and `.section--alt` / `.section--dark` surfaces in the base layer, plus dark-surface colour tokens, so no section needs one-off colours;
+- **Services**: four service areas in a responsive card grid (1 / 2 / 4 columns);
+- **Selected work**: three portfolio entries described by category only, each with a decorative preview panel and tag list;
+- **Process**: the five steps as an ordered list - vertical with a connector on mobile, five columns with a horizontal connector on desktop;
+- **Technology**: four capability groups rendered as chip lists, with a note that this site itself is React-only;
+- **About/metrics**: company profile on the dark surface with the four supplied figures in a description list and a note naming the company as their source;
+- **Contact**: section heading, enquiry guidance checklist and location panel (the form itself is Day 05);
+- **Footer**: company summary, footer navigation, dynamic copyright year and a note that this is an internship demo site;
+- every navigation anchor (header, footer and both hero CTAs) now resolves to a real section.
 
 ### Day 05 - planned
 
 Contact form with validation and demo success state, keyboard-only QA pass, console-warning cleanup, project README and final manual QA notes.
 
-### Known state between days
+### Section order
 
-The header navigation links to `#usluge`, `#projekti`, `#proces`, `#o-nama` and `#kontakt` are already present because the specification fixes the header's link list. Their target sections are added on Days 04 and 05; until then only `#pocetna` resolves. Day 04 explicitly requires that all navigation links reach their intended sections.
+`#pocetna` (hero) → `#usluge` → `#projekti` → `#proces` → `#tehnologije` → `#o-nama` → `#kontakt` → footer. `#tehnologije` deliberately has no header link: the specification fixes the navigation to six entries.

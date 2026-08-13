@@ -123,6 +123,46 @@ ol {
   padding-block: var(--section-padding);
 }
 
+/* Alternating section grounds give the page a readable vertical rhythm. */
+.section--alt {
+  background-color: var(--color-surface-alt);
+  border-block: 1px solid var(--color-border);
+}
+
+.section--dark {
+  color: var(--color-on-ink-muted);
+  background-color: var(--color-ink);
+}
+
+/*
+  Shared card primitive: services, projects and technology groups extend it.
+  Cards in a grid stretch to the row height on their own, so no explicit
+  height is set here - that would also stretch standalone cards.
+*/
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition-base),
+    box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.card__title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.card__text {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-body);
+}
+
 /* Visible only to assistive technology. */
 .visually-hidden {
   position: absolute;

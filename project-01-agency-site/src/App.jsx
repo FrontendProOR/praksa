@@ -1,9 +1,16 @@
 import Header from "./components/Header.jsx";
 import Hero from "./components/Hero.jsx";
+import Services from "./components/Services.jsx";
+import SelectedWork from "./components/SelectedWork.jsx";
+import Process from "./components/Process.jsx";
+import Technology from "./components/Technology.jsx";
+import About from "./components/About.jsx";
+import Contact from "./components/Contact.jsx";
+import Footer from "./components/Footer.jsx";
 
 /**
- * Page shell: skip link, sticky header and the main content landmark.
- * Content sections are added to <main> as the site grows.
+ * Page shell: skip link, sticky header, the content sections in the order
+ * defined by the requirements, and the footer.
  */
 function App() {
   return (
@@ -16,7 +23,15 @@ function App() {
 
       <main id="glavni-sadrzaj" tabIndex={-1}>
         <Hero />
+        <Services />
+        <SelectedWork />
+        <Process />
+        <Technology />
+        <About />
+        <Contact />
       </main>
+
+      <Footer />
     </>
   );
 }

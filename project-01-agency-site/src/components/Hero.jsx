@@ -7,11 +7,13 @@ import "../styles/hero.css";
  */
 function Hero() {
   return (
-    <section className="hero" id="pocetna">
+    <section className="hero" id="pocetna" aria-labelledby="pocetna-naslov">
       <div className="container hero__inner">
         <div className="hero__content">
           <p className="eyebrow">{HERO.eyebrow}</p>
-          <h1 className="hero__title">{HERO.title}</h1>
+          <h1 id="pocetna-naslov" className="hero__title">
+            {HERO.title}
+          </h1>
           <p className="lead hero__lead">{HERO.lead}</p>
 
           <div className="hero__actions">
