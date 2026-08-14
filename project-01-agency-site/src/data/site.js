@@ -223,6 +223,64 @@ export const CONTACT = {
   },
 };
 
+/** Validation limits for the contact form, shared with its messages below. */
+export const CONTACT_FORM_LIMITS = {
+  nameMin: 2,
+  nameMax: 80,
+  emailMax: 120,
+  messageMin: 20,
+  messageMax: 1000,
+};
+
+/**
+ * Contact form copy and validation messages. The form is a frontend demo:
+ * nothing is sent anywhere and nothing is stored, which the UI states plainly.
+ */
+export const CONTACT_FORM = {
+  title: "Pošaljite upit",
+  demoNote:
+    "Forma je demonstraciona: podaci se ne šalju na server niti se čuvaju.",
+  labels: {
+    name: "Ime i prezime",
+    email: "Email adresa",
+    projectType: "Tip projekta",
+    message: "Poruka",
+  },
+  help: {
+    email: "Na ovu adresu bismo odgovorili na upit.",
+    message: `Najmanje ${CONTACT_FORM_LIMITS.messageMin} znakova - kratak opis projekta i faze u kojoj je.`,
+  },
+  projectTypePlaceholder: "Izaberite tip projekta",
+  projectTypes: [
+    "Web aplikacija",
+    "Backend i API",
+    "Mobilna aplikacija",
+    "Održavanje i integracije",
+    "Nešto drugo",
+  ],
+  submitLabel: "Pošalji upit",
+  submittingLabel: "Slanje u toku...",
+  errors: {
+    nameRequired: "Unesite ime i prezime.",
+    nameShort: `Ime mora imati najmanje ${CONTACT_FORM_LIMITS.nameMin} znaka.`,
+    nameLong: `Ime može imati najviše ${CONTACT_FORM_LIMITS.nameMax} znakova.`,
+    emailRequired: "Unesite email adresu.",
+    emailInvalid: "Email adresa nije ispravnog formata, na primjer ime@firma.com.",
+    emailLong: `Email adresa može imati najviše ${CONTACT_FORM_LIMITS.emailMax} znakova.`,
+    projectTypeRequired: "Izaberite tip projekta.",
+    messageRequired: "Unesite poruku.",
+    messageShort: `Poruka mora imati najmanje ${CONTACT_FORM_LIMITS.messageMin} znakova.`,
+    messageLong: `Poruka može imati najviše ${CONTACT_FORM_LIMITS.messageMax} znakova.`,
+  },
+  success: {
+    title: "Hvala na upitu",
+    text:
+      "Vaš upit je prikazan samo u pregledaču. Ovo je demo sajt bez serverskog " +
+      "dijela, pa poruka nije poslata niti sačuvana.",
+    again: "Pošalji novu poruku",
+  },
+};
+
 export const FOOTER = {
   description:
     "SMWEB je razvojni tim iz Zvornika. Gradimo web i mobilne aplikacije, " +

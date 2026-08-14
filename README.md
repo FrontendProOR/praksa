@@ -79,7 +79,19 @@ The structure is created progressively - each project folder appears on the day 
 
 ## Setup
 
-No dependencies are installed yet - the project folders are created on their scheduled days (Day 03 and Day 06). Each project will ship its own `README.md` with prerequisites, install, environment, run, seed, test and build commands.
+Each project has its own `package.json` and its own `README.md` with the full command list.
+
+**Project 1 - agency website** (complete):
+
+```bash
+cd project-01-agency-site
+npm install
+npm run dev      # development server
+npm run build    # production build
+npm run lint     # oxlint
+```
+
+**Project 2 - MERN commerce** is created on Day 06 and will document its own install, environment, seed, run, test and build commands.
 
 Prerequisites for the whole repository:
 
@@ -98,6 +110,8 @@ Prerequisites for the whole repository:
 | [`docs/day-01-onboarding.md`](docs/day-01-onboarding.md) | Onboarding notes: development lifecycle, project scopes, MERN objective, tools and working rules |
 | [`docs/day-02-mern-notes.md`](docs/day-02-mern-notes.md) | Verified development environment (tool versions), MERN learning notes (Node/npm, Express, REST, MongoDB, Mongoose, React), MongoDB URI approach and manual API testing workflow |
 | [`docs/project-01-requirements.md`](docs/project-01-requirements.md) | Agency website requirements: sections, responsive rules, accessibility bar, out-of-scope list and per-day implementation status |
+| [`docs/project-01-qa-notes.md`](docs/project-01-qa-notes.md) | Final manual QA pass for Project 1: build, sections, navigation, form cases, accessibility, responsive results and known limitations |
+| [`project-01-agency-site/README.md`](project-01-agency-site/README.md) | Project 1 setup: prerequisites, install and run commands, structure, contact form rules |
 
 Further documents (Project 2 requirements, API reference, manual test checklist) are added on their scheduled days.
 

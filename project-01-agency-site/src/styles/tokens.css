@@ -28,6 +28,12 @@
   --color-accent-soft: #eef1ff;
   --color-accent-contrast: #ffffff;
 
+  /* --- Colour: form feedback ------------------------------------------- */
+  --color-danger: #b32318;
+  --color-success: #0f7b45;
+  --color-success-soft: #eef8f2;
+  --color-success-border: #bfe3ce;
+
   /* --- Colour: text and borders on dark surfaces ------------------------ */
   --color-on-ink: #eef1f8;
   --color-on-ink-muted: #a9b4cc;

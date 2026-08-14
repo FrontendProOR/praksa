@@ -1,0 +1,154 @@
+/* Contact form: fields, validation messages and the demo success state. */
+
+.contact-form {
+  gap: var(--space-5);
+  padding: clamp(var(--space-5), 4vw, var(--space-8));
+  box-shadow: var(--shadow-md);
+}
+
+.contact-form__title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+}
+
+.contact-form__note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/* --- Fields ------------------------------------------------------------ */
+
+.form-field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.form-field__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+}
+
+.form-field__help {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.form-field__control {
+  width: 100%;
+  min-height: 3rem;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-ink);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.form-field__control::placeholder {
+  color: var(--color-muted);
+}
+
+.form-field__control:hover {
+  border-color: var(--color-accent);
+}
+
+.form-field__control:focus-visible {
+  border-color: var(--color-accent);
+}
+
+.form-field__control--textarea {
+  min-height: 8rem;
+  line-height: var(--leading-normal);
+  resize: vertical;
+}
+
+/*
+  Invalid fields are marked by the message text and the aria-invalid state as
+  well as colour, so the error is never signalled by colour alone.
+*/
+.form-field__control[aria-invalid="true"] {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 1px var(--color-danger);
+}
+
+.form-field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-danger);
+}
+
+/* Non-textual marker beside the message; the message itself carries meaning. */
+.form-field__error::before {
+  content: "";
+  flex: none;
+  width: var(--space-2);
+  height: var(--space-2);
+  margin-top: 0.45em;
+  background-color: var(--color-danger);
+  border-radius: var(--radius-pill);
+}
+
+/*
+  The error must sit directly under its control, so it is ordered ahead of the
+  character counter. The counter is decorative (aria-hidden) and the error is
+  associated through aria-describedby, so the reading order is unaffected.
+*/
+.form-field__error {
+  order: 1;
+}
+
+.form-field__counter {
+  order: 2;
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  text-align: right;
+}
+
+.contact-form .btn {
+  justify-self: start;
+  margin-top: var(--space-1);
+}
+
+.contact-form .btn[disabled] {
+  cursor: progress;
+  opacity: 0.75;
+}
+
+/* --- Success state ----------------------------------------------------- */
+
+.contact-form--success {
+  gap: var(--space-4);
+  align-items: flex-start;
+  border-color: var(--color-success-border);
+  background-color: var(--color-success-soft);
+}
+
+/* Circle with a CSS-drawn tick; decorative, hidden from assistive tech. */
+.contact-form__success-mark {
+  position: relative;
+  width: var(--space-10);
+  height: var(--space-10);
+  background-color: var(--color-success);
+  border-radius: var(--radius-pill);
+}
+
+.contact-form__success-mark::after {
+  content: "";
+  position: absolute;
+  top: 32%;
+  left: 38%;
+  width: 0.5rem;
+  height: 0.9rem;
+  border: solid var(--color-accent-contrast);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}

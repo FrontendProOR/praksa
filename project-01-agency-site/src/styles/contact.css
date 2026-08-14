@@ -6,7 +6,7 @@
   align-items: start;
 }
 
-.contact__intro .section-heading {
+.contact__info .section-heading {
   margin-bottom: var(--space-8);
 }
 
@@ -45,6 +45,7 @@
 
 .contact__panel {
   gap: var(--space-2);
+  margin-top: var(--space-8);
   background-color: var(--color-surface-alt);
 }
 
@@ -60,6 +61,6 @@
 
 @media (min-width: 1025px) {
   .contact__inner {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
   }
 }

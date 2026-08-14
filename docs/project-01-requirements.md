@@ -110,9 +110,17 @@ No backend, database, API calls, authentication, routing library, CMS, analytics
 - **Footer**: company summary, footer navigation, dynamic copyright year and a note that this is an internship demo site;
 - every navigation anchor (header, footer and both hero CTAs) now resolves to a real section.
 
-### Day 05 - planned
+### Day 05 - delivered
 
-Contact form with validation and demo success state, keyboard-only QA pass, console-warning cleanup, project README and final manual QA notes.
+- `ContactForm` component with the four required fields (name, email, project type, message), validated entirely in the browser;
+- validation on blur, on submit and again while an invalid field is being corrected; limits and messages defined once in `src/data/site.js`;
+- invalid submit is blocked, marks fields with `aria-invalid`, shows a message linked by `aria-describedby`, preserves everything typed and moves focus to the first field needing attention;
+- duplicate submission prevented: the submit button is disabled with progress text, the form is `aria-busy`, and the handler ignores re-entry while a submission is running;
+- demo success state that states plainly that nothing was sent or stored, is a focused live region, and offers a reset back to an empty form;
+- project README with scope, prerequisites, install/run/build/lint commands, structure, form rules and accessibility notes;
+- final manual QA pass recorded in [`project-01-qa-notes.md`](project-01-qa-notes.md).
+
+**Project 1 is complete.**
 
 ### Section order
 
