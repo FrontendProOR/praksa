@@ -112,8 +112,10 @@ Prerequisites for the whole repository:
 | [`docs/project-01-requirements.md`](docs/project-01-requirements.md) | Agency website requirements: sections, responsive rules, accessibility bar, out-of-scope list and per-day implementation status |
 | [`docs/project-01-qa-notes.md`](docs/project-01-qa-notes.md) | Final manual QA pass for Project 1: build, sections, navigation, form cases, accessibility, responsive results and known limitations |
 | [`project-01-agency-site/README.md`](project-01-agency-site/README.md) | Project 1 setup: prerequisites, install and run commands, structure, contact form rules |
+| [`docs/project-02-requirements.md`](docs/project-02-requirements.md) | MERN Commerce requirements and architecture: roles, layers, MongoDB data model, relationships, indexes, REST API surface, cart and order rules, environment configuration |
+| [`project-02-mern-commerce/README.md`](project-02-mern-commerce/README.md) | Project 2 overview, current status and model verification command |
 
-Further documents (Project 2 requirements, API reference, manual test checklist) are added on their scheduled days.
+Further documents (API reference, manual test checklist) are added on their scheduled days.
 
 ---
 

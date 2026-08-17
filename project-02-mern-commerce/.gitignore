@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Environment files - only .env.example is committed
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Build output
+dist/
+build/
+
+# Test output
+coverage/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor and OS noise
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,16 @@
+{
+  "name": "smweb-mern-commerce-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Express + MongoDB API for the SMWEB MERN Commerce internship project",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "check:models": "node src/models/index.js"
+  },
+  "dependencies": {
+    "mongoose": "^9.9.4"
+  }
+}
