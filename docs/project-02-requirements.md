@@ -253,7 +253,7 @@ Allowed error codes: `VALIDATION_ERROR`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND
 | 403 | `FORBIDDEN` - authenticated but not permitted |
 | 404 | `NOT_FOUND` - unknown route or missing resource |
 | 409 | `CONFLICT` - duplicate email, category still in use |
-| 429 | rate limit exceeded |
+| 429 | rate limit exceeded - reported with the `FORBIDDEN` code, because the contract fixes the code list and contains none for rate limiting |
 | 500 | `INTERNAL_ERROR` |
 
 `OUT_OF_STOCK` is a domain rejection at checkout and is returned with a 4xx status.
@@ -399,44 +399,62 @@ Real `.env` files are git-ignored and never committed. `JWT_SECRET` must be a lo
 
 Automated tests will point `MONGODB_URI` at a separate database name (for example `smweb_mern_commerce_test`) so a test run can never destroy demo data.
 
-### 9.4 Open prerequisite: no MongoDB server installed
+### 9.4 MongoDB server: resolved on Day 07
 
-Re-checked on Day 06: `mongod` and `mongosh` are not on `PATH`, there is no `MongoDB*` Windows service, `C:\Program Files\MongoDB` does not exist and nothing is listening on port 27017. MongoDB Compass (a client) is installed, but there is no server for it to connect to.
+The Day 06 gap (no MongoDB server on the machine) was closed on Day 07 **without administrator rights**, by using the MongoDB Community ZIP archive instead of the service installer:
 
-**This does not block Day 06** - the schemas are verified with Mongoose's validation, which runs without a database connection. **It does block Day 07**, where the API first connects.
+- **Version:** MongoDB Community Server 8.3.8 (`mongodb-windows-x86_64-8.3.8.zip`)
+- **Location:** `%LOCALAPPDATA%\mongodb-local\mongodb-win32-x86_64-windows-8.3.8`
+- **Data directory:** `%LOCALAPPDATA%\mongodb-local\data`
 
-To resolve, before Day 07:
+Start it before running the API:
 
 ```powershell
-winget install MongoDB.Server          # package id verified: MongoDB.Server 8.3.7
-Get-Service MongoDB                    # expect Status = Running
-Test-NetConnection 127.0.0.1 -Port 27017   # expect TcpTestSucceeded = True
+& "$env:LOCALAPPDATA\mongodb-local\mongodb-win32-x86_64-windows-8.3.8\bin\mongod.exe" `
+    --dbpath "$env:LOCALAPPDATA\mongodb-local\data" --bind_ip 127.0.0.1 --port 27017
 ```
 
-The project stays on a local MongoDB, exactly as `MONGODB_URI` above describes. No cloud database is substituted, and the database is not swapped for PostgreSQL, Supabase or Firebase.
+The `winget install MongoDB.Server` route (verified package id `MongoDB.Server`) installs the same server as a Windows service that starts automatically, but it needs elevation. Either route serves the same `MONGODB_URI`; the ZIP was chosen because it required no elevation. The database is local in both cases - no cloud database is substituted, and it is not swapped for PostgreSQL, Supabase or Firebase.
 
-A default installation is a **standalone** deployment, so multi-document transactions are unavailable. That is the reason Day 12 plans a documented non-transactional order sequence; running the server as a single-node replica set instead would enable transactions and is the alternative to decide by Day 12.
+Verified on Day 07: the server accepts connections on `127.0.0.1:27017`, the API connects at startup, and `smweb_mern_commerce` holds the `products` and `categories` collections with the expected indexes.
+
+Either way this is a **standalone** deployment, so multi-document transactions are unavailable. That is the reason Day 12 plans a documented non-transactional order sequence; running the server as a single-node replica set instead would enable transactions and is the alternative to decide by Day 12.
 
 ---
 
-## 10. Current state after Day 06
+## 10. Admin routes are closed until Day 08
 
-Created:
+The admin mutation routes exist and their controllers and services are fully implemented, but JWT authentication and `authorize('admin')` do not exist yet. Rather than exposing them unprotected, every one of them is closed by `middleware/adminLock.js`, which always rejects with **401 `UNAUTHORIZED`**:
 
 ```text
-project-02-mern-commerce/
-├── .gitignore
-├── README.md
-├── server/
-│   ├── package.json          # ESM, mongoose only so far
-│   ├── .env.example
-│   └── src/
-│       ├── models/           # User, Category, Product, Order, index.js
-│       └── utils/slugify.js
-└── client/
-    └── .env.example
+POST   /api/products      PUT /api/products/:id      DELETE /api/products/:id
+POST   /api/categories    PUT /api/categories/:id    DELETE /api/categories/:id
 ```
 
-Not yet created, by design: `app.js`, `server.js`, `config/`, `routes/`, `controllers/`, `services/`, `middleware/`, `seeds/` (Day 07 onwards) and the whole client application (Day 09 onwards).
+There is no header, query parameter or environment flag that opens the lock - nothing like `?admin=true` exists. The CRUD logic is verified by calling the services directly, so no test bypass had to be built into the request path. On Day 08 `adminLock` is replaced by `authenticate` + `authorize('admin')` on the same routes.
 
-Verified on Day 06: all four models register and 77 assertions covering every field, constraint, default, enum, index flag and serialisation rule pass, including that no plaintext password path exists, that a registration payload cannot set `role: "admin"`, that `toJSON` strips `passwordHash`, and that an order item snapshot does not change when the source product changes.
+`GET /api/admin/products` (the admin listing that includes inactive products) is **not** implemented yet: CLAUDE.md assigns it to Day 13.
+
+## 11. Current state after Day 06
+
+Day 06 created the four Mongoose models, `utils/slugify.js` and both `.env.example` files, and verified them with 77 assertions covering every field, constraint, default, enum, index flag and serialisation rule - including that no plaintext password path exists, that a registration payload cannot set `role: "admin"`, that `toJSON` strips `passwordHash`, and that an order item snapshot does not change when the source product changes.
+
+## 12. Current state after Day 07
+
+```text
+project-02-mern-commerce/server/src/
+├── app.js                     Express app (no listen, no DB - testable)
+├── server.js                  config -> DB connect -> listen, graceful shutdown
+├── config/       env.js  db.js
+├── routes/       index.js  category.routes.js  product.routes.js
+├── controllers/  health  category  product
+├── services/     category.service.js  product.service.js
+├── middleware/   validate  notFound  errorHandler  adminLock
+│                 category.validation.js  product.validation.js
+├── models/       User  Category  Product  Order  index.js
+└── utils/        ApiError.js  respond.js  slugify.js
+```
+
+Implemented and verified on Day 07: `GET /api/health`; public category list and get-by-slug; public product listing with search, category filter, sorting, pagination and `featured`; public product get-by-slug; full create/update/delete services for both resources; the category-in-use delete conflict; the validation, not-found and central error middleware; and the temporary admin lock.
+
+Not yet created, by design: `seeds/` (Day 15), authentication (Day 08), `GET /api/admin/products`, `/api/admin/orders`, `/api/admin/stats` (Day 13), the order endpoints (Day 12) and the whole client application (Day 09 onwards).
