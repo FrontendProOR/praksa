@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as controller from "../controllers/category.controller.js";
 import { validate } from "../middleware/validate.js";
-import { adminLock } from "../middleware/adminLock.js";
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   categoryBody,
   categoryIdParam,
@@ -11,8 +11,7 @@ import {
 /**
  * Category routes. Only bindings live here - no logic.
  *
- * The three mutation routes are closed by `adminLock` until Day 08 replaces it
- * with `authenticate` + `authorize('admin')`.
+ * Mutations require a valid session cookie and the admin role.
  */
 const router = Router();
 
@@ -20,16 +19,31 @@ const router = Router();
 router.get("/", controller.listCategories);
 router.get("/:slug", categorySlugParam, validate, controller.getCategoryBySlug);
 
-// Admin - disabled until authentication exists (Day 08)
-router.post("/", adminLock, categoryBody, validate, controller.createCategory);
+// Admin only
+router.post(
+  "/",
+  authenticate,
+  authorize("admin"),
+  categoryBody,
+  validate,
+  controller.createCategory,
+);
 router.put(
   "/:id",
-  adminLock,
+  authenticate,
+  authorize("admin"),
   categoryIdParam,
   categoryBody,
   validate,
   controller.updateCategory,
 );
-router.delete("/:id", adminLock, categoryIdParam, validate, controller.deleteCategory);
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("admin"),
+  categoryIdParam,
+  validate,
+  controller.deleteCategory,
+);
 
 export default router;

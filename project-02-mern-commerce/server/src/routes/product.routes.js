@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as controller from "../controllers/product.controller.js";
 import { validate } from "../middleware/validate.js";
-import { adminLock } from "../middleware/adminLock.js";
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   productBody,
   productIdParam,
@@ -16,7 +16,9 @@ import {
  * clamped to the documented bounds so a hand-edited URL cannot break the
  * listing.
  *
- * The three mutation routes are closed by `adminLock` until Day 08.
+ * Mutations require a valid session cookie and the admin role. This is the
+ * only authorization boundary that matters - the React client's route guards
+ * are convenience only.
  */
 const router = Router();
 
@@ -24,16 +26,31 @@ const router = Router();
 router.get("/", controller.listProducts);
 router.get("/:slug", productSlugParam, validate, controller.getProductBySlug);
 
-// Admin - disabled until authentication exists (Day 08)
-router.post("/", adminLock, productBody, validate, controller.createProduct);
+// Admin only
+router.post(
+  "/",
+  authenticate,
+  authorize("admin"),
+  productBody,
+  validate,
+  controller.createProduct,
+);
 router.put(
   "/:id",
-  adminLock,
+  authenticate,
+  authorize("admin"),
   productIdParam,
   productBody,
   validate,
   controller.updateProduct,
 );
-router.delete("/:id", adminLock, productIdParam, validate, controller.deleteProduct);
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("admin"),
+  productIdParam,
+  validate,
+  controller.deleteProduct,
+);
 
 export default router;

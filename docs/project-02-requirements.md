@@ -308,17 +308,26 @@ Every collection response carries:
 { "page": 1, "limit": 12, "totalItems": 35, "totalPages": 3 }
 ```
 
-### 6.5 Authentication and authorization (planned - implemented on Day 08)
+### 6.5 Authentication and authorization (implemented on Day 08)
 
-- Password hashing with `bcryptjs`; minimum 8 characters with at least one letter and one number.
-- A JWT signed with `JWT_SECRET`, payload kept minimal: `{ "sub": "<user id>", "role": "user" }`.
-- The token travels in an **HttpOnly** cookie named `access_token`, `sameSite=lax`, `secure` only in production, expiring in about 60 minutes.
-- The browser never reads the token from JavaScript, and it is never placed in `localStorage`.
-- Middleware: `authenticate` (verify the cookie, load the current user), `authorize(...roles)`, a login-specific rate limiter, Helmet, CORS restricted to `CLIENT_ORIGIN` with credentials enabled, `notFound` and a central `errorHandler`.
-- Invalid credentials return a generic 401 that does not reveal whether the email exists; a duplicate registration returns 409.
-- The server must fail to start, with a clear message, when a required secret or connection string is missing.
+- Password hashing with `bcryptjs` at work factor 12; policy is at least 8 characters containing a letter and a number. Only `passwordHash` is stored - the schema has no `password` path.
+- A JWT signed with `JWT_SECRET`, payload kept minimal: `{ "sub": "<user id>", "role": "<role>" }` plus `iat`/`exp`. No email, name or any other user data goes into the token.
+- The token travels in an **HttpOnly** cookie named `access_token`, `sameSite=lax`, `path=/`, `secure` only in production, `maxAge` 60 minutes. It is never returned in a response body, so there is nothing for the client to put in `localStorage`.
+- `authenticate` reads the cookie, verifies the signature and expiry, then loads the account. **The database is the authority on the role**, not the token: a role change or a deleted account takes effect on the next request even for an already-issued token.
+- `authorize(...roles)` runs after `authenticate` and returns 403 when the stored role is not permitted. Roles supplied in a body, header or query string are ignored.
+- Rate limiting: the base API limiter plus a stricter login limiter (10 failed attempts per 15 minutes, successful logins not counted).
+- Invalid credentials return one generic 401 - identical for an unknown email and a wrong password - so the endpoint cannot be used to discover registered addresses. A duplicate registration returns 409.
+- Startup fails with a clear message and exit code 1 when `MONGODB_URI` or `JWT_SECRET` is missing, when the secret is shorter than 32 characters, or when it is still the `.env.example` placeholder.
 
-**No authentication code exists yet.** This section is the plan for Day 08.
+#### Development admin
+
+There is no route that can grant the admin role. One admin is created by a documented script that takes its values from the environment and prints no password:
+
+```bash
+ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='ChangeMe123' npm run seed:admin
+```
+
+It refuses to run without both variables, rejects a password that fails the policy, and refuses to run under `NODE_ENV=production` unless `ALLOW_PRODUCTION_ADMIN_SEED` is set deliberately. Credentials live only in the local environment and are never committed.
 
 ---
 
@@ -422,16 +431,22 @@ Either way this is a **standalone** deployment, so multi-document transactions a
 
 ---
 
-## 10. Admin routes are closed until Day 08
+## 10. Admin route protection
 
-The admin mutation routes exist and their controllers and services are fully implemented, but JWT authentication and `authorize('admin')` do not exist yet. Rather than exposing them unprotected, every one of them is closed by `middleware/adminLock.js`, which always rejects with **401 `UNAUTHORIZED`**:
+Day 07 shipped these six mutation routes behind a temporary `adminLock` that rejected everything, because authentication did not exist yet. **Day 08 removed that file** and replaced it with the real chain `authenticate` -> `authorize('admin')` on the same routes:
 
 ```text
 POST   /api/products      PUT /api/products/:id      DELETE /api/products/:id
 POST   /api/categories    PUT /api/categories/:id    DELETE /api/categories/:id
 ```
 
-There is no header, query parameter or environment flag that opens the lock - nothing like `?admin=true` exists. The CRUD logic is verified by calling the services directly, so no test bypass had to be built into the request path. On Day 08 `adminLock` is replaced by `authenticate` + `authorize('admin')` on the same routes.
+| Caller | Result |
+|---|---|
+| no cookie | 401 `UNAUTHORIZED` |
+| valid session, role `user` | 403 `FORBIDDEN` |
+| valid session, role `admin` | the operation runs |
+
+There was never a bypass: no header, query parameter or environment flag opened the Day 07 lock, and nothing like `?admin=true` exists now.
 
 `GET /api/admin/products` (the admin listing that includes inactive products) is **not** implemented yet: CLAUDE.md assigns it to Day 13.
 
@@ -439,22 +454,25 @@ There is no header, query parameter or environment flag that opens the lock - no
 
 Day 06 created the four Mongoose models, `utils/slugify.js` and both `.env.example` files, and verified them with 77 assertions covering every field, constraint, default, enum, index flag and serialisation rule - including that no plaintext password path exists, that a registration payload cannot set `role: "admin"`, that `toJSON` strips `passwordHash`, and that an order item snapshot does not change when the source product changes.
 
-## 12. Current state after Day 07
+## 12. Current state after Day 08
 
 ```text
 project-02-mern-commerce/server/src/
 ├── app.js                     Express app (no listen, no DB - testable)
 ├── server.js                  config -> DB connect -> listen, graceful shutdown
 ├── config/       env.js  db.js
-├── routes/       index.js  category.routes.js  product.routes.js
-├── controllers/  health  category  product
-├── services/     category.service.js  product.service.js
-├── middleware/   validate  notFound  errorHandler  adminLock
-│                 category.validation.js  product.validation.js
+├── routes/       index.js  auth.routes.js  category.routes.js  product.routes.js
+├── controllers/  health  auth  category  product
+├── services/     auth.service.js  category.service.js  product.service.js
+├── middleware/   auth (authenticate, authorize)  validate  notFound  errorHandler
+│                 rateLimiters  auth.validation  category.validation  product.validation
 ├── models/       User  Category  Product  Order  index.js
-└── utils/        ApiError.js  respond.js  slugify.js
+├── seeds/        create-admin.js
+└── utils/        ApiError  respond  slugify  password  jwt  cookies
 ```
 
-Implemented and verified on Day 07: `GET /api/health`; public category list and get-by-slug; public product listing with search, category filter, sorting, pagination and `featured`; public product get-by-slug; full create/update/delete services for both resources; the category-in-use delete conflict; the validation, not-found and central error middleware; and the temporary admin lock.
+Implemented and verified on Day 07: `GET /api/health`; public category list and get-by-slug; public product listing with search, category filter, sorting, pagination and `featured`; public product get-by-slug; create/update/delete for both resources; the category-in-use delete conflict; and the validation, not-found and central error middleware.
 
-Not yet created, by design: `seeds/` (Day 15), authentication (Day 08), `GET /api/admin/products`, `/api/admin/orders`, `/api/admin/stats` (Day 13), the order endpoints (Day 12) and the whole client application (Day 09 onwards).
+Added and verified on Day 08: the four `/api/auth/*` endpoints, bcrypt password hashing, JWT in an HttpOnly cookie, `authenticate` and `authorize('admin')` protecting all six mutation routes, the login rate limiter, fail-fast secret validation and the development admin script.
+
+Not yet created, by design: the demo data seed (Day 15), `GET /api/admin/products`, `/api/admin/orders`, `/api/admin/stats` (Day 13), the order endpoints (Day 12) and the whole client application (Day 09 onwards).

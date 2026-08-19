@@ -2,10 +2,8 @@
 
 A scoped e-commerce application built on the MERN stack: **MongoDB, Express.js, React and Node.js**. It is the main project of the 2026 internship and demonstrates data modelling, a REST API with CRUD, JWT authentication in an HttpOnly cookie, a React storefront and admin area, and end-to-end functional testing.
 
-> **Status: Express API foundation with product and category CRUD (Day 07).**
-> Authentication (Day 08), orders (Day 12), the admin endpoints (Day 13) and the React client (Day 09 onwards) are not implemented yet. Full setup, seed, test and build instructions are added on Day 15.
->
-> The six admin mutation routes are implemented but **deliberately closed** until Day 08 adds JWT authentication - they return 401 `UNAUTHORIZED`.
+> **Status: REST API with product/category CRUD and JWT authentication (Day 08).**
+> Orders (Day 12), the admin endpoints (Day 13) and the React client (Day 09 onwards) are not implemented yet. Full setup, seed, test and build instructions are added on Day 15.
 
 ---
 
@@ -60,11 +58,32 @@ curl "http://localhost:5000/api/products?page=1&limit=12&sort=newest"
 | Method | Path | Access |
 |---|---|---|
 | GET | `/api/health` | public |
+| POST | `/api/auth/register` | public - always creates a `user`, starts the session |
+| POST | `/api/auth/login` | public, rate limited |
+| POST | `/api/auth/logout` | public, idempotent |
+| GET | `/api/auth/me` | authenticated |
 | GET | `/api/categories` | public |
 | GET | `/api/categories/:slug` | public |
 | GET | `/api/products` | public - supports `q`, `category`, `sort`, `page`, `limit`, `featured` |
 | GET | `/api/products/:slug` | public - active products only |
-| POST/PUT/DELETE | `/api/products`, `/api/categories` | closed until Day 08 (401) |
+| POST/PUT/DELETE | `/api/products`, `/api/categories` | **admin only** - 401 without a session, 403 as a normal user |
+
+## Authentication
+
+The JWT is delivered in an **HttpOnly** cookie named `access_token` (`SameSite=Lax`, `Path=/`, 60-minute expiry, `Secure` only in production). It is never returned in a response body, so browser JavaScript cannot read it and there is nothing to keep in `localStorage`. Client requests must therefore send credentials (`withCredentials: true` in Axios).
+
+Passwords are hashed with bcrypt and only the hash is stored; `passwordHash` never appears in any API response.
+
+### Creating a development admin
+
+Registration always produces a `user` - there is no endpoint that grants the admin role. Create one locally:
+
+```bash
+cd server
+ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='ChangeMe123' npm run seed:admin
+```
+
+Choose your own values; they are read from the environment, never printed, and never committed.
 
 ## Verifying the models
 
