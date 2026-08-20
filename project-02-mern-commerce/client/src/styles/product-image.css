@@ -1,0 +1,22 @@
+/* Product image and its fallback tile. */
+
+.product-image {
+  width: 100%;
+  object-fit: cover;
+}
+
+.product-image--placeholder {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(60% 60% at 50% 30%, var(--color-accent-soft), transparent 70%),
+    var(--color-surface-sunken);
+}
+
+.product-image__initials {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-accent);
+  opacity: 0.75;
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="SMWEB Lab">
+  <rect width="64" height="64" rx="16" fill="#0d7d72" />
+  <path d="M26 14h12v4h-2v12.6l9.4 15.1A5 5 0 0 1 41.2 53H22.8a5 5 0 0 1-4.2-7.3L28 30.6V18h-2z" fill="#ffffff" opacity=".95"/>
+  <circle cx="28" cy="43" r="2.6" fill="#0d7d72"/>
+  <circle cx="36" cy="47" r="2" fill="#0d7d72"/>
+</svg>

@@ -1,0 +1,75 @@
+/* Shared loading, error and empty states. */
+
+.state-view {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-5);
+  text-align: center;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.state-view--error {
+  border-color: color-mix(in srgb, var(--color-danger) 35%, var(--color-border));
+  background-color: var(--color-danger-soft);
+}
+
+.state-view__title {
+  font-size: var(--text-lg);
+}
+
+.state-view__message {
+  max-width: 52ch;
+  color: var(--color-body);
+}
+
+.state-view__loading-text {
+  color: var(--color-muted);
+}
+
+.state-view__icon {
+  width: var(--space-10);
+  height: var(--space-10);
+  background-color: var(--color-surface-sunken);
+  border-radius: var(--radius-pill);
+}
+
+.state-view__icon--error {
+  background-color: color-mix(in srgb, var(--color-danger) 18%, transparent);
+}
+
+/* Skeleton placeholders shown while the catalogue loads. */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--space-5);
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+.skeleton-card {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.skeleton-card__media {
+  aspect-ratio: 4 / 3;
+  background-color: var(--color-surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.skeleton-card__line {
+  height: 0.75rem;
+  background-color: var(--color-surface-sunken);
+  border-radius: var(--radius-pill);
+}
+
+.skeleton-card__line--short {
+  width: 60%;
+}

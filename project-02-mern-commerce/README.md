@@ -2,8 +2,8 @@
 
 A scoped e-commerce application built on the MERN stack: **MongoDB, Express.js, React and Node.js**. It is the main project of the 2026 internship and demonstrates data modelling, a REST API with CRUD, JWT authentication in an HttpOnly cookie, a React storefront and admin area, and end-to-end functional testing.
 
-> **Status: REST API with product/category CRUD and JWT authentication (Day 08).**
-> Orders (Day 12), the admin endpoints (Day 13) and the React client (Day 09 onwards) are not implemented yet. Full setup, seed, test and build instructions are added on Day 15.
+> **Status: REST API with JWT authentication, plus the React storefront foundation (Day 09).**
+> Catalogue controls, authentication screens, cart, checkout, orders and the admin area are not implemented yet. Full setup, seed, test and build instructions are added on Day 15.
 
 ---
 
@@ -16,8 +16,9 @@ project-02-mern-commerce/
 │   └── src/
 │       ├── models/  User, Category, Product, Order
 │       └── utils/   slugify
-└── client/          React + Vite application (created on Day 09)
-    └── .env.example
+└── client/          React + Vite storefront
+    ├── .env.example
+    └── src/         api, components, hooks, layouts, pages, routes, styles, utils
 ```
 
 ## Requirements and architecture
@@ -85,12 +86,29 @@ ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='ChangeMe123' npm run seed:admin
 
 Choose your own values; they are read from the environment, never printed, and never committed.
 
-## Verifying the models
+## Running the storefront
+
+With the API running, in a second terminal:
+
+```bash
+cd client
+npm install
+npm run dev      # http://localhost:5173
+```
+
+The client reads `VITE_API_BASE_URL` from `client/.env`. Its port must match the API's `CLIENT_ORIGIN`, because CORS only allows the configured origin - starting the client on another port is correctly rejected by the API.
+
+Pages available today: home, catalogue (`/products`), product details (`/products/:slug`) and a 404 page. See [`client/README.md`](client/README.md).
+
+## Development data
 
 ```bash
 cd server
-npm run check:models    # registers all four models; no database connection needed
+npm run seed:dev-catalogue   # fictional categories and products for local work
+npm run check:models         # registers all four models; no database connection needed
 ```
+
+`seed:dev-catalogue` clears and reloads only the catalogue collections, so it is safe to re-run. It is a development fixture, not the deliverable seed - Day 15 implements that.
 
 ## Key rules
 

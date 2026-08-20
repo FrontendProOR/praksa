@@ -1,0 +1,14 @@
+/* Catalogue page. */
+
+.catalog__intro {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+  max-width: 46rem;
+}
+
+.catalog__count {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}

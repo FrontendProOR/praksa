@@ -1,0 +1,124 @@
+/* Home page: hero, category list and featured products. */
+
+.hero {
+  padding-block: clamp(2.5rem, 6vw, 4.5rem);
+  background:
+    radial-gradient(60ch 34ch at 10% -20%, var(--color-accent-soft), transparent 70%),
+    linear-gradient(180deg, var(--color-surface), var(--color-surface-alt));
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hero__inner {
+  display: grid;
+  gap: clamp(var(--space-8), 5vw, var(--space-12));
+  align-items: center;
+}
+
+.hero__content {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+  max-width: 38rem;
+}
+
+.hero__title {
+  max-width: 20ch;
+}
+
+.hero__actions {
+  margin-top: var(--space-2);
+}
+
+/* Decorative panel built from layout only. */
+.hero__panel {
+  display: none;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.hero__panel-bar {
+  display: block;
+  height: 0.625rem;
+  width: 70%;
+  background-color: var(--color-surface-sunken);
+  border-radius: var(--radius-pill);
+}
+
+.hero__panel-bar--short {
+  width: 45%;
+  background-color: var(--color-accent);
+}
+
+.hero__panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.hero__panel-grid span {
+  height: 4.5rem;
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.section--alt {
+  background-color: var(--color-surface);
+  border-block: 1px solid var(--color-border);
+}
+
+.section-heading {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+  max-width: 46rem;
+}
+
+.section-heading__text {
+  color: var(--color-body);
+}
+
+.section-more {
+  margin-top: var(--space-8);
+}
+
+.category-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-4);
+}
+
+.category-card {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.category-card__name {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+}
+
+.category-card__description {
+  font-size: var(--text-sm);
+  color: var(--color-body);
+}
+
+@media (min-width: 1025px) {
+  .hero__inner {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
+
+  .hero__panel {
+    display: grid;
+  }
+}

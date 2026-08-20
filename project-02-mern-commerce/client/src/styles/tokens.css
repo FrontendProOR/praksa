@@ -1,0 +1,114 @@
+/*
+  Design tokens for the SMWEB Lab store.
+
+  Deliberately a different visual language from Project 1 (which is indigo on
+  white): this store uses a deep slate ink with a teal accent and a warmer
+  neutral ground, so the two deliverables do not look like the same template.
+
+  Breakpoints (custom properties cannot be used in media queries, so the values
+  are documented here and repeated in the rules):
+    mobile   <= 640px
+    tablet   641px - 1024px
+    desktop  >= 1025px
+*/
+
+:root {
+  /* --- Colour: neutrals ------------------------------------------------ */
+  --color-ink: #0f1c22;
+  --color-ink-soft: #23343d;
+  --color-body: #4a5c66;
+  --color-muted: #6c7d87;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f4f7f7;
+  --color-surface-sunken: #e8eeef;
+  --color-border: #dbe3e5;
+  --color-border-strong: #bfcccf;
+
+  /* --- Colour: brand --------------------------------------------------- */
+  --color-accent: #0d7d72;
+  --color-accent-strong: #0a615a;
+  --color-accent-soft: #e6f4f2;
+  --color-accent-contrast: #ffffff;
+
+  /* --- Colour: state --------------------------------------------------- */
+  --color-danger: #b3251f;
+  --color-danger-soft: #fdeceb;
+  --color-success: #0f7b45;
+  --color-success-soft: #eaf6ef;
+  --color-warning: #8a5300;
+  --color-warning-soft: #fdf3e2;
+
+  /* --- Colour: on dark surfaces ---------------------------------------- */
+  --color-on-ink: #eef4f5;
+  --color-on-ink-muted: #a3b5bd;
+  --color-on-ink-border: #24373f;
+
+  /* --- Typography ------------------------------------------------------ */
+  --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
+    sans-serif;
+
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1rem;
+  --text-lg: clamp(1.0625rem, 0.99rem + 0.35vw, 1.1875rem);
+  --text-xl: clamp(1.1875rem, 1.08rem + 0.55vw, 1.4375rem);
+  --text-2xl: clamp(1.4375rem, 1.28rem + 0.85vw, 1.875rem);
+  --text-3xl: clamp(1.75rem, 1.45rem + 1.5vw, 2.5rem);
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.32;
+  --leading-normal: 1.58;
+  --leading-relaxed: 1.7;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --tracking-tight: -0.015em;
+  --tracking-wide: 0.08em;
+
+  /* --- Spacing (0.25rem base) ------------------------------------------ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+
+  /* --- Layout ---------------------------------------------------------- */
+  --container-width: 1180px;
+  --container-gutter: clamp(1rem, 4vw, 2.25rem);
+  --section-padding: clamp(2.5rem, 6vw, 4.5rem);
+  --header-height: 4rem;
+
+  /* --- Shape and depth ------------------------------------------------- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 28, 34, 0.06), 0 1px 3px rgba(15, 28, 34, 0.04);
+  --shadow-md: 0 10px 24px -14px rgba(15, 28, 34, 0.3);
+  --shadow-lg: 0 24px 56px -28px rgba(15, 28, 34, 0.38);
+
+  /* --- Motion ---------------------------------------------------------- */
+  --transition-fast: 130ms ease;
+  --transition-base: 200ms cubic-bezier(0.2, 0.7, 0.3, 1);
+
+  /* --- Layering -------------------------------------------------------- */
+  --z-header: 100;
+  --z-skip-link: 200;
+}
+
+@media (min-width: 1025px) {
+  :root {
+    --header-height: 4.5rem;
+  }
+}

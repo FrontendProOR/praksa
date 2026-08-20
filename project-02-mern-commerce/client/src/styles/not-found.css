@@ -1,0 +1,16 @@
+/* 404 page. */
+
+.not-found {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+  max-width: 44rem;
+  padding-block: var(--space-12);
+}
+
+.not-found__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}

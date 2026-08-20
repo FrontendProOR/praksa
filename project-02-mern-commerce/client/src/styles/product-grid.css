@@ -1,0 +1,21 @@
+/* Responsive product grid: 1 column on mobile, up to 4 on wide screens. */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--space-5);
+}
+
+.product-grid > li {
+  display: flex;
+}
+
+.product-grid > li > * {
+  width: 100%;
+}
+
+@media (max-width: 400px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}

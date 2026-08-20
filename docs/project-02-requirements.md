@@ -3,7 +3,7 @@
 - **Project folder:** `project-02-mern-commerce/`
 - **Internship days:** 06 (17.08.2026.) through 15 (28.08.2026.)
 - **Source of truth:** Sections 5-11 and 13 of `CLAUDE.md`. This document restates those requirements in implementable form. It adds no scope.
-- **Status:** planning and data model complete (Day 06). No API, authentication or client code exists yet.
+- **Status:** REST API, JWT authentication and the React storefront foundation are implemented (Days 06-09). Catalogue controls, cart, checkout, orders and the admin area are still to come.
 
 ---
 
@@ -365,7 +365,32 @@ No price or total from the request body is ever read. A transaction is preferred
 
 ---
 
-## 8. Frontend plan (implemented from Day 09)
+## 8. Frontend (storefront foundation implemented on Day 09)
+
+### 8.1 What exists today
+
+```text
+client/src/
+├── api/          client.js (single Axios instance)  products.js  categories.js
+├── components/   Header  Footer  Container  Button  ProductCard  ProductGrid
+│                 ProductImage  Price  StateViews (loading/error/empty)
+├── hooks/        useApiResource.js
+├── layouts/      StoreLayout.jsx
+├── pages/        HomePage  CatalogPage  ProductDetailsPage  NotFoundPage
+├── routes/       AppRoutes.jsx
+├── styles/       tokens.css  base.css  + one stylesheet per component
+└── utils/        format.js
+```
+
+Routes: `/` (home), `/products` (catalogue), `/products/:slug` (details) and `*` (404). The other routes in section 8.2 are added by the days that implement them - registering a route now would only render a blank page.
+
+Every request goes through the single Axios instance, configured from `VITE_API_BASE_URL` with `withCredentials: true` so the HttpOnly session cookie works when the auth screens arrive. A response interceptor turns both API error envelopes and transport failures into one `ApiRequestError`, so pages never depend on Axios internals or on an undocumented response shape.
+
+The catalogue currently uses the API's default listing (page 1, 12 per page, newest first). Search, filtering, sorting and pagination controls are the next piece of work; the API and the `fetchProducts` signature already accept those parameters.
+
+Product images are URLs or paths - there is no upload service - so `ProductImage` falls back to a drawn placeholder tile when an image does not resolve.
+
+### 8.2 Full planned information architecture
 
 Public routes: `/`, `/products`, `/products/:slug`, `/login`, `/register`, `/cart`, `*` (404).
 Authenticated routes: `/checkout`, `/orders`, `/orders/:id` (own order or admin), `/account`.
@@ -377,7 +402,7 @@ All HTTP goes through one Axios instance configured from `VITE_API_BASE_URL` wit
 
 UX bar: responsive header, consistent spacing and typography, explicit loading/empty/error states, useful API error messages, submit buttons disabled while a request is pending, confirmation before destructive admin actions, clear order status badges, a visually distinct admin area, a 404 page, no horizontal overflow at 320px and keyboard-usable forms.
 
-**No client code exists yet.** The client folder currently holds only `.env.example`.
+Days 10-13 add the catalogue controls, the authentication screens and `AuthContext`, the cart and checkout, and the admin area.
 
 ---
 
@@ -454,7 +479,7 @@ There was never a bypass: no header, query parameter or environment flag opened 
 
 Day 06 created the four Mongoose models, `utils/slugify.js` and both `.env.example` files, and verified them with 77 assertions covering every field, constraint, default, enum, index flag and serialisation rule - including that no plaintext password path exists, that a registration payload cannot set `role: "admin"`, that `toJSON` strips `passwordHash`, and that an order item snapshot does not change when the source product changes.
 
-## 12. Current state after Day 08
+## 12. Current state after Day 09
 
 ```text
 project-02-mern-commerce/server/src/
@@ -474,5 +499,16 @@ project-02-mern-commerce/server/src/
 Implemented and verified on Day 07: `GET /api/health`; public category list and get-by-slug; public product listing with search, category filter, sorting, pagination and `featured`; public product get-by-slug; create/update/delete for both resources; the category-in-use delete conflict; and the validation, not-found and central error middleware.
 
 Added and verified on Day 08: the four `/api/auth/*` endpoints, bcrypt password hashing, JWT in an HttpOnly cookie, `authenticate` and `authorize('admin')` protecting all six mutation routes, the login rate limiter, fail-fast secret validation and the development admin script.
+
+Added and verified on Day 09: the React storefront foundation - Vite client, React Router, the centralised Axios layer, the shared layout, home, catalogue, product details and 404 pages, all reading real data from MongoDB through the API.
+
+Two development-only scripts support local work and are documented as such:
+
+| Script | Purpose |
+|---|---|
+| `npm run seed:admin` | creates or promotes one admin account from environment variables |
+| `npm run seed:dev-catalogue` | loads fictional categories and products so the storefront has real data to render |
+
+Neither is the deliverable seed: Day 15 implements the full deterministic seed from Section 14.
 
 Not yet created, by design: the demo data seed (Day 15), `GET /api/admin/products`, `/api/admin/orders`, `/api/admin/stats` (Day 13), the order endpoints (Day 12) and the whole client application (Day 09 onwards).

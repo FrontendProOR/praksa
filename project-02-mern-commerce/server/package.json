@@ -11,7 +11,8 @@
     "check:models": "node src/models/index.js",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "seed:admin": "node src/seeds/create-admin.js"
+    "seed:admin": "node src/seeds/create-admin.js",
+    "seed:dev-catalogue": "node src/seeds/dev-catalogue.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
