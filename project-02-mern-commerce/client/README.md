@@ -2,7 +2,7 @@
 
 React + Vite single-page application for the MERN Commerce project. It reads the catalogue from the Express API; nothing on the page is hardcoded product data.
 
-> **Status (Day 09):** storefront foundation - home, catalogue, product details and 404. Catalogue search/filter/sort/pagination controls, authentication screens, cart, checkout and the admin area are added on their scheduled days.
+> **Status (Day 10):** storefront with a full catalogue interaction layer - search, category and featured filters, sorting, pagination and URL-backed state. Authentication screens, cart, checkout and the admin area are added on their scheduled days.
 
 ## Prerequisites
 
@@ -38,13 +38,15 @@ npm run dev
 ```text
 src/
 ├── api/          centralised Axios client and the endpoint modules
-├── components/   Header, Footer, ProductCard, ProductGrid, state views, ...
+├── components/   Header, Footer, ProductCard, ProductGrid, SearchBar,
+│                 FilterPanel, Pagination, state views, ...
 ├── hooks/        useApiResource - loading/error/data with request cancellation
+│                 useCatalogParams - catalogue state read from and written to the URL
 ├── layouts/      StoreLayout - skip link, header, <main>, footer
 ├── pages/        HomePage, CatalogPage, ProductDetailsPage, NotFoundPage
 ├── routes/       AppRoutes
 ├── styles/       design tokens, base layer, one stylesheet per component
-└── utils/        formatting helpers
+└── utils/        format.js, catalogQuery.js (parse/sanitise/serialise catalogue state)
 ```
 
 ## API layer
@@ -52,6 +54,18 @@ src/
 All HTTP goes through `src/api/client.js`. It is configured with `withCredentials: true` because the session JWT is delivered in an HttpOnly cookie - the token is never read by JavaScript and never stored in `localStorage` or `sessionStorage`.
 
 A response interceptor converts both API error envelopes and transport failures into a single `ApiRequestError` carrying `message`, `code`, `status` and `details`, so components never depend on Axios internals.
+
+## Catalogue URL state
+
+The catalogue keeps its state in the address bar, so a link such as
+
+```text
+/products?q=staklo&category=laboratorijsko-posude&sort=price_asc&page=2
+```
+
+reproduces exactly the same result set for anyone who opens it. Refresh and the browser Back/Forward buttons restore previous states, and defaults (`sort=newest`, page 1, empty search) are left out so the tidy URL is just `/products`.
+
+Unsupported values are repaired rather than rejected: an unknown `sort` falls back to `newest` and an invalid `page` to 1, matching the API's own behaviour. Changing a filter resets to page 1; changing the page keeps the filters.
 
 ## Local data
 

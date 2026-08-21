@@ -386,7 +386,17 @@ Routes: `/` (home), `/products` (catalogue), `/products/:slug` (details) and `*`
 
 Every request goes through the single Axios instance, configured from `VITE_API_BASE_URL` with `withCredentials: true` so the HttpOnly session cookie works when the auth screens arrive. A response interceptor turns both API error envelopes and transport failures into one `ApiRequestError`, so pages never depend on Axios internals or on an undocumented response shape.
 
-The catalogue currently uses the API's default listing (page 1, 12 per page, newest first). Search, filtering, sorting and pagination controls are the next piece of work; the API and the `fetchProducts` signature already accept those parameters.
+The catalogue controls - search, category filter, featured toggle, sort and pagination - are driven entirely by the URL. `utils/catalogQuery.js` is the single place that parses, sanitises and serialises that state, and `hooks/useCatalogParams.js` reads and writes it through `useSearchParams`. There is no second copy of the state in React, which is what makes refresh, Back/Forward and shared links work without a synchronising effect.
+
+| Parameter | Values | Omitted when |
+|---|---|---|
+| `q` | free text, trimmed | empty |
+| `category` | a real category slug from the API | not filtered |
+| `sort` | `newest`, `price_asc`, `price_desc`, `name_asc`, `name_desc` | `newest` |
+| `featured` | `true` | not filtered |
+| `page` | positive integer | page 1 |
+
+Sanitising mirrors the API exactly: an unsupported `sort` falls back to `newest` and an invalid `page` falls back to 1, so a hand-edited URL cannot break the page. Changing any filter resets to page 1; changing only the page keeps every other control. Search is submitted explicitly rather than on each keystroke, so typing produces neither a request per character nor a history entry per character.
 
 Product images are URLs or paths - there is no upload service - so `ProductImage` falls back to a drawn placeholder tile when an image does not resolve.
 
@@ -402,7 +412,7 @@ All HTTP goes through one Axios instance configured from `VITE_API_BASE_URL` wit
 
 UX bar: responsive header, consistent spacing and typography, explicit loading/empty/error states, useful API error messages, submit buttons disabled while a request is pending, confirmation before destructive admin actions, clear order status badges, a visually distinct admin area, a 404 page, no horizontal overflow at 320px and keyboard-usable forms.
 
-Days 10-13 add the catalogue controls, the authentication screens and `AuthContext`, the cart and checkout, and the admin area.
+Days 11-13 add the authentication screens and `AuthContext`, the cart and checkout, and the admin area.
 
 ---
 
@@ -479,7 +489,7 @@ There was never a bypass: no header, query parameter or environment flag opened 
 
 Day 06 created the four Mongoose models, `utils/slugify.js` and both `.env.example` files, and verified them with 77 assertions covering every field, constraint, default, enum, index flag and serialisation rule - including that no plaintext password path exists, that a registration payload cannot set `role: "admin"`, that `toJSON` strips `passwordHash`, and that an order item snapshot does not change when the source product changes.
 
-## 12. Current state after Day 09
+## 12. Current state after Day 10
 
 ```text
 project-02-mern-commerce/server/src/
@@ -501,6 +511,8 @@ Implemented and verified on Day 07: `GET /api/health`; public category list and 
 Added and verified on Day 08: the four `/api/auth/*` endpoints, bcrypt password hashing, JWT in an HttpOnly cookie, `authenticate` and `authorize('admin')` protecting all six mutation routes, the login rate limiter, fail-fast secret validation and the development admin script.
 
 Added and verified on Day 09: the React storefront foundation - Vite client, React Router, the centralised Axios layer, the shared layout, home, catalogue, product details and 404 pages, all reading real data from MongoDB through the API.
+
+Added and verified on Day 10: the catalogue interaction layer - `SearchBar`, `FilterPanel` (category, featured, sort), `Pagination`, and URL-backed catalogue state. Every control re-queries the API; nothing filters an already-loaded array.
 
 Two development-only scripts support local work and are documented as such:
 

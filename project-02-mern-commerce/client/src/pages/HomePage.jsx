@@ -81,20 +81,23 @@ function HomePage() {
               />
             ) : (
               /*
-                Informational cards for now. They are not links yet because
-                filtering the catalogue by category is part of the catalogue
-                controls work, and a link to an unfiltered catalogue would
-                promise something the page does not do.
+                Now that the catalogue reads its filters from the URL, each
+                card links straight to that category's filtered listing.
               */
               <ul className="category-list">
                 {categories.data.map((category) => (
-                  <li key={category.id} className="category-card">
-                    <span className="category-card__name">{category.name}</span>
-                    {category.description ? (
-                      <span className="category-card__description">
-                        {category.description}
-                      </span>
-                    ) : null}
+                  <li key={category.id}>
+                    <Link
+                      className="category-card"
+                      to={`/products?category=${encodeURIComponent(category.slug)}`}
+                    >
+                      <span className="category-card__name">{category.name}</span>
+                      {category.description ? (
+                        <span className="category-card__description">
+                          {category.description}
+                        </span>
+                      ) : null}
+                    </Link>
                   </li>
                 ))}
               </ul>
