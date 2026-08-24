@@ -382,7 +382,11 @@ client/src/
 └── utils/        format.js
 ```
 
-Routes: `/` (home), `/products` (catalogue), `/products/:slug` (details) and `*` (404). The other routes in section 8.2 are added by the days that implement them - registering a route now would only render a blank page.
+Routes: `/` (home), `/products`, `/products/:slug`, `/login`, `/register`, `/account` (behind `ProtectedRoute`), `/admin` (behind `AdminRoute`) and `*` (404). `/cart`, `/checkout` and `/orders` are added by the days that implement them.
+
+**Authentication state.** `context/AuthProvider.jsx` holds the session; `context/auth-context.js` exposes the `useAuth` hook. The browser never holds the JWT - it stays in the HttpOnly cookie, and the provider keeps only the safe user object (`id`, `name`, `email`, `role`, `createdAt`). On mount it asks `/auth/me` who the cookie belongs to; a 401 there is the normal answer for a guest and resolves to `user: null`, while a transport failure is recorded separately so "not signed in" and "server unreachable" are never confused. Guards render nothing until that bootstrap settles, so a refresh never bounces a signed-in user to the login page and no authenticated UI flashes for a guest.
+
+A 401 from any non-auth endpoint clears the client session through an Axios interceptor, so an expired cookie cannot leave a signed-in header behind.
 
 Every request goes through the single Axios instance, configured from `VITE_API_BASE_URL` with `withCredentials: true` so the HttpOnly session cookie works when the auth screens arrive. A response interceptor turns both API error envelopes and transport failures into one `ApiRequestError`, so pages never depend on Axios internals or on an undocumented response shape.
 
@@ -412,7 +416,7 @@ All HTTP goes through one Axios instance configured from `VITE_API_BASE_URL` wit
 
 UX bar: responsive header, consistent spacing and typography, explicit loading/empty/error states, useful API error messages, submit buttons disabled while a request is pending, confirmation before destructive admin actions, clear order status badges, a visually distinct admin area, a 404 page, no horizontal overflow at 320px and keyboard-usable forms.
 
-Days 11-13 add the authentication screens and `AuthContext`, the cart and checkout, and the admin area.
+Days 12-13 add the cart and checkout, and the admin management screens.
 
 ---
 
@@ -489,7 +493,7 @@ There was never a bypass: no header, query parameter or environment flag opened 
 
 Day 06 created the four Mongoose models, `utils/slugify.js` and both `.env.example` files, and verified them with 77 assertions covering every field, constraint, default, enum, index flag and serialisation rule - including that no plaintext password path exists, that a registration payload cannot set `role: "admin"`, that `toJSON` strips `passwordHash`, and that an order item snapshot does not change when the source product changes.
 
-## 12. Current state after Day 10
+## 12. Current state after Day 11
 
 ```text
 project-02-mern-commerce/server/src/
@@ -513,6 +517,8 @@ Added and verified on Day 08: the four `/api/auth/*` endpoints, bcrypt password 
 Added and verified on Day 09: the React storefront foundation - Vite client, React Router, the centralised Axios layer, the shared layout, home, catalogue, product details and 404 pages, all reading real data from MongoDB through the API.
 
 Added and verified on Day 10: the catalogue interaction layer - `SearchBar`, `FilterPanel` (category, featured, sort), `Pagination`, and URL-backed catalogue state. Every control re-queries the API; nothing filters an already-loaded array.
+
+Added and verified on Day 11: frontend authentication - `AuthProvider` with `/auth/me` bootstrap, login and registration pages, logout, the account page, `ProtectedRoute` and `AdminRoute`, and an auth-aware header. The admin route currently guards a placeholder page so the guard itself is verifiable; the management screens are Day 13.
 
 Two development-only scripts support local work and are documented as such:
 

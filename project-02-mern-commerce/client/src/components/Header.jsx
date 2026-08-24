@@ -1,16 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import Container from "./Container.jsx";
+import { useAuth } from "../context/auth-context.js";
 import "../styles/header.css";
 
 /**
- * Storefront header: wordmark and the public navigation.
+ * Storefront header: wordmark, public navigation and the account area.
  *
- * Only the routes that exist today are linked. Account, cart and admin entries
- * are added on the days that implement those areas, so the header never links
- * to a page that is not there.
+ * The account area reflects the session the server confirmed: guests see
+ * sign-in links, a signed-in user sees their account and a sign-out button,
+ * and an admin additionally sees the admin link. Nothing is shown until the
+ * startup `/auth/me` has settled, so an authenticated header never flashes for
+ * a guest (or the other way round).
  *
- * The mobile menu is a disclosure: one <nav> in the DOM, revealed inline on
+ * The admin link is a convenience only. Hiding it is not what protects the
+ * admin area - the API authorises every admin request itself.
+ *
+ * The mobile menu is a disclosure: one <nav> in the DOM, shown inline on
  * desktop and as a panel below the header on smaller screens.
  */
 const NAV_LINKS = [
@@ -23,10 +29,9 @@ const MOBILE_NAV_ID = "glavna-navigacija";
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleRef = useRef(null);
+  const navigate = useNavigate();
+  const { isAuthenticated, isAdmin, authReady, user, logout } = useAuth();
 
-  // Closed by the click that navigates, rather than by watching the location:
-  // the panel only contains links, so the click is the event that should
-  // close it.
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
   useEffect(() => {
@@ -41,6 +46,15 @@ function Header() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isMenuOpen]);
+
+  const handleLogout = async () => {
+    closeMenu();
+    // Leave the current page first. Clearing the session while still on a
+    // protected route would let that route's guard redirect to the login page,
+    // racing this navigation and landing the user somewhere unpredictable.
+    navigate("/", { replace: true });
+    await logout();
+  };
 
   return (
     <header className="site-header">
@@ -87,7 +101,59 @@ function Header() {
                 </NavLink>
               </li>
             ))}
+
+            {authReady && isAdmin ? (
+              <li>
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    `site-nav__link${isActive ? " site-nav__link--active" : ""}`
+                  }
+                  onClick={closeMenu}
+                >
+                  Administracija
+                </NavLink>
+              </li>
+            ) : null}
           </ul>
+
+          {/* Rendered only once the session is known, to avoid a flash. */}
+          {authReady ? (
+            <div className="site-nav__account">
+              {isAuthenticated ? (
+                <>
+                  <NavLink
+                    to="/account"
+                    className={({ isActive }) =>
+                      `site-nav__link${isActive ? " site-nav__link--active" : ""}`
+                    }
+                    onClick={closeMenu}
+                  >
+                    Moj nalog
+                    <span className="visually-hidden"> ({user.email})</span>
+                  </NavLink>
+                  <button type="button" className="btn btn--secondary btn--sm" onClick={handleLogout}>
+                    Odjava
+                  </button>
+                </>
+              ) : (
+                <>
+                  <NavLink
+                    to="/login"
+                    className={({ isActive }) =>
+                      `site-nav__link${isActive ? " site-nav__link--active" : ""}`
+                    }
+                    onClick={closeMenu}
+                  >
+                    Prijava
+                  </NavLink>
+                  <Link className="btn btn--primary btn--sm" to="/register" onClick={closeMenu}>
+                    Registracija
+                  </Link>
+                </>
+              )}
+            </div>
+          ) : null}
         </nav>
       </Container>
     </header>

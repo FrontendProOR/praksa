@@ -2,7 +2,7 @@
 
 React + Vite single-page application for the MERN Commerce project. It reads the catalogue from the Express API; nothing on the page is hardcoded product data.
 
-> **Status (Day 10):** storefront with a full catalogue interaction layer - search, category and featured filters, sorting, pagination and URL-backed state. Authentication screens, cart, checkout and the admin area are added on their scheduled days.
+> **Status (Day 11):** storefront with catalogue controls plus account flows - registration, login, logout, the account page and route guards. Cart, checkout and the admin management screens are added on their scheduled days.
 
 ## Prerequisites
 
@@ -39,12 +39,14 @@ npm run dev
 src/
 ├── api/          centralised Axios client and the endpoint modules
 ├── components/   Header, Footer, ProductCard, ProductGrid, SearchBar,
-│                 FilterPanel, Pagination, state views, ...
+│                 FilterPanel, Pagination, FormField, state views, ...
+├── context/      AuthProvider + the useAuth hook
 ├── hooks/        useApiResource - loading/error/data with request cancellation
 │                 useCatalogParams - catalogue state read from and written to the URL
 ├── layouts/      StoreLayout - skip link, header, <main>, footer
-├── pages/        HomePage, CatalogPage, ProductDetailsPage, NotFoundPage
-├── routes/       AppRoutes
+├── pages/        Home, Catalog, ProductDetails, Login, Register, Account,
+│                 Admin (placeholder), NotFound
+├── routes/       AppRoutes, ProtectedRoute, AdminRoute
 ├── styles/       design tokens, base layer, one stylesheet per component
 └── utils/        format.js, catalogQuery.js (parse/sanitise/serialise catalogue state)
 ```
@@ -54,6 +56,16 @@ src/
 All HTTP goes through `src/api/client.js`. It is configured with `withCredentials: true` because the session JWT is delivered in an HttpOnly cookie - the token is never read by JavaScript and never stored in `localStorage` or `sessionStorage`.
 
 A response interceptor converts both API error envelopes and transport failures into a single `ApiRequestError` carrying `message`, `code`, `status` and `details`, so components never depend on Axios internals.
+
+## Authentication
+
+The session lives in an HttpOnly cookie issued by the API. The client never reads, stores or renders the token - there is nothing in `localStorage` or `sessionStorage`, and `document.cookie` cannot see it. Every request carries it automatically because the shared Axios instance uses `withCredentials: true`.
+
+On startup `AuthProvider` calls `/auth/me` to find out whether the cookie belongs to anyone. Until that answer arrives the route guards render a short "checking" state rather than redirecting, so refreshing a protected page keeps you on it.
+
+`ProtectedRoute` sends a guest to `/login` and remembers where they were going; `AdminRoute` additionally requires the `admin` role and tells a signed-in non-admin plainly that the page is not for them. **Both are conveniences.** The API authorises every request on its own - hiding a link or a route protects nothing.
+
+Registration always creates a `user`: the form has no role control, and the API ignores a role sent in the body.
 
 ## Catalogue URL state
 

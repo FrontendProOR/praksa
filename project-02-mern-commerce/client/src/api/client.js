@@ -87,9 +87,33 @@ function normaliseError(error) {
   });
 }
 
+/**
+ * Called when the API rejects a request as unauthenticated, so the app can
+ * drop a session that expired or was invalidated on the server.
+ *
+ * The auth endpoints are excluded: a failed login or a bootstrap `/me` for a
+ * guest are normal outcomes, not an expiring session, and reacting to them
+ * here would fight with the auth flow.
+ */
+let onUnauthorized = null;
+
+export function setUnauthorizedHandler(handler) {
+  onUnauthorized = handler;
+}
+
+const AUTH_PATHS = ["/auth/login", "/auth/register", "/auth/me", "/auth/logout"];
+
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(normaliseError(error)),
+  (error) => {
+    const apiError = normaliseError(error);
+    const url = error.config?.url ?? "";
+    const isAuthCall = AUTH_PATHS.some((path) => url.startsWith(path));
+
+    if (apiError.status === 401 && !isAuthCall) onUnauthorized?.();
+
+    return Promise.reject(apiError);
+  },
 );
 
 /**
