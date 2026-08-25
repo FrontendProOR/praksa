@@ -2,7 +2,7 @@
 
 React + Vite single-page application for the MERN Commerce project. It reads the catalogue from the Express API; nothing on the page is hardcoded product data.
 
-> **Status (Day 11):** storefront with catalogue controls plus account flows - registration, login, logout, the account page and route guards. Cart, checkout and the admin management screens are added on their scheduled days.
+> **Status (Day 12):** storefront with catalogue controls, account flows, and the full purchase flow - cart, checkout, order history and order details. The admin management screens are added on Day 13.
 
 ## Prerequisites
 
@@ -40,11 +40,12 @@ src/
 ├── api/          centralised Axios client and the endpoint modules
 ├── components/   Header, Footer, ProductCard, ProductGrid, SearchBar,
 │                 FilterPanel, Pagination, FormField, state views, ...
-├── context/      AuthProvider + the useAuth hook
+├── context/      AuthProvider + useAuth, CartProvider + useCart
 ├── hooks/        useApiResource - loading/error/data with request cancellation
 │                 useCatalogParams - catalogue state read from and written to the URL
 ├── layouts/      StoreLayout - skip link, header, <main>, footer
-├── pages/        Home, Catalog, ProductDetails, Login, Register, Account,
+├── pages/        Home, Catalog, ProductDetails, Login, Register, Cart,
+│                 Checkout, Orders, OrderDetails, Account,
 │                 Admin (placeholder), NotFound
 ├── routes/       AppRoutes, ProtectedRoute, AdminRoute
 ├── styles/       design tokens, base layer, one stylesheet per component
@@ -66,6 +67,14 @@ On startup `AuthProvider` calls `/auth/me` to find out whether the cookie belong
 `ProtectedRoute` sends a guest to `/login` and remembers where they were going; `AdminRoute` additionally requires the `admin` role and tells a signed-in non-admin plainly that the page is not for them. **Both are conveniences.** The API authorises every request on its own - hiding a link or a route protects nothing.
 
 Registration always creates a `user`: the form has no role control, and the API ignores a role sent in the body.
+
+## Cart
+
+The cart lives in the browser and is persisted to `localStorage` under `smweb-lab-cart-v1`. A guest can fill one without an account; checkout is what requires signing in.
+
+The stored price and stock are **display copies**. Editing them in dev tools changes what this page shows and nothing else: checkout sends only product ids and quantities, and the server re-reads price, availability and stock from the database before it prices the order. Stored data is also read back defensively - corrupted JSON, junk entries and impossible quantities are repaired or discarded rather than trusted.
+
+Nothing sensitive is kept there: no token, no session, no personal data.
 
 ## Catalogue URL state
 

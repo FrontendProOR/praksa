@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import Container from "./Container.jsx";
 import { useAuth } from "../context/auth-context.js";
+import { useCart } from "../context/cart-context.js";
 import "../styles/header.css";
 
 /**
@@ -31,6 +32,7 @@ function Header() {
   const toggleRef = useRef(null);
   const navigate = useNavigate();
   const { isAuthenticated, isAdmin, authReady, user, logout } = useAuth();
+  const { itemCount } = useCart();
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
@@ -117,11 +119,40 @@ function Header() {
             ) : null}
           </ul>
 
+          <div className="site-nav__account">
+            <NavLink
+              to="/cart"
+              className={({ isActive }) =>
+                `site-nav__link site-nav__cart${isActive ? " site-nav__link--active" : ""}`
+              }
+              onClick={closeMenu}
+            >
+              Korpa
+              {itemCount > 0 ? (
+                <span className="site-nav__badge">
+                  {itemCount}
+                  <span className="visually-hidden"> artikala u korpi</span>
+                </span>
+              ) : (
+                <span className="visually-hidden"> (prazna)</span>
+              )}
+            </NavLink>
+          </div>
+
           {/* Rendered only once the session is known, to avoid a flash. */}
           {authReady ? (
             <div className="site-nav__account">
               {isAuthenticated ? (
                 <>
+                  <NavLink
+                    to="/orders"
+                    className={({ isActive }) =>
+                      `site-nav__link${isActive ? " site-nav__link--active" : ""}`
+                    }
+                    onClick={closeMenu}
+                  >
+                    Narudžbe
+                  </NavLink>
                   <NavLink
                     to="/account"
                     className={({ isActive }) =>

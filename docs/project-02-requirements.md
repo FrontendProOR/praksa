@@ -278,9 +278,9 @@ Allowed error codes: `VALIDATION_ERROR`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND
 | PUT | `/api/products/:id` | admin | update |
 | DELETE | `/api/products/:id` | admin | delete (hard delete is acceptable) |
 | GET | `/api/admin/products` | admin | all products, including inactive |
-| POST | `/api/orders` | authenticated | create an order from ids + quantities |
-| GET | `/api/orders/mine` | authenticated | own order history |
-| GET | `/api/orders/:id` | authenticated | own order; an admin may read any |
+| POST | `/api/orders` | authenticated | create an order from ids + quantities (implemented) |
+| GET | `/api/orders/mine` | authenticated | own order history (implemented) |
+| GET | `/api/orders/:id` | authenticated | own order; an admin may read any (implemented) |
 | GET | `/api/admin/orders` | admin | all orders |
 | PATCH | `/api/admin/orders/:id/status` | admin | change `orderStatus` |
 | GET | `/api/admin/stats` | admin | totals, active products, orders by status, demo revenue excluding cancelled |
@@ -355,11 +355,28 @@ Cart item shape: `productId`, `slug`, `name`, `imageUrl`, `price`, `stock`, `qua
 1. loads every referenced product from MongoDB;
 2. rejects the order if any product is missing or inactive (`NOT_FOUND` / `VALIDATION_ERROR`);
 3. rejects it if any requested quantity exceeds current stock (`OUT_OF_STOCK`);
-4. computes `unitPrice` from `Product.price`, `lineTotal = unitPrice * quantity`, `subtotal` as the sum of the line totals, then `shippingCost` and `total` by the documented rule;
+4. computes `unitPrice` from `Product.price`, `lineTotal = unitPrice * quantity`, `subtotal` as the sum of the line totals, then `shippingCost` and `total`;
 5. writes the item snapshots;
 6. decrements stock only after all validation has passed.
 
-No price or total from the request body is ever read. A transaction is preferred where the MongoDB deployment supports it; on a standalone server (see section 9) transactions are unavailable, so Day 12 implements a documented non-transactional sequence and states the limitation instead of implying atomicity.
+No price or total from the request body is ever read. Duplicate lines for the same product are merged first, so the same item cannot be validated twice and slip past the stock check.
+
+**Shipping rule.** A flat fee of 6.90 KM, waived once the subtotal reaches 100 KM. The constants live in `order.service.js`; the client never sends or influences the figure.
+
+**Payment status.** `cash_on_delivery` leaves `paymentStatus: "pending"`; `card_demo` records `paid_demo` after the simulated flow. No card details are requested or stored, and no payment is processed.
+
+### 7.4 Non-transactional order creation (standalone MongoDB)
+
+The local deployment is standalone, so multi-document transactions are unavailable. Rather than pretending otherwise, order creation runs this documented sequence:
+
+1. load every referenced product; reject missing or inactive ones;
+2. reject quantities the current stock cannot cover, so the ordinary case fails with a clear message before anything is written;
+3. price the order from the database values;
+4. take the stock one product at a time with a **conditional** update that matches only while enough remains - `{ _id, active: true, stock: { $gte: quantity } }` with `$inc: { stock: -quantity }`. This, not step 2, is what prevents overselling: step 2 alone would race;
+5. if any decrement fails, put back everything already taken and reject the order;
+6. only then write the order; if that write fails, put the stock back too.
+
+The compensation in steps 5 and 6 is best effort - without transactions there is no rollback - and a failure to restore is logged loudly. Verified under concurrency: two buyers racing for the last unit produce exactly one order, one `OUT_OF_STOCK`, and stock that stops at zero.
 
 `card_demo` never asks for or stores card details. It is a demo choice that may set `paymentStatus` to `paid_demo` after a simulated flow.
 
@@ -382,7 +399,9 @@ client/src/
 └── utils/        format.js
 ```
 
-Routes: `/` (home), `/products`, `/products/:slug`, `/login`, `/register`, `/account` (behind `ProtectedRoute`), `/admin` (behind `AdminRoute`) and `*` (404). `/cart`, `/checkout` and `/orders` are added by the days that implement them.
+Routes: `/` (home), `/products`, `/products/:slug`, `/login`, `/register`, `/cart`, then `/checkout`, `/orders`, `/orders/:id` and `/account` behind `ProtectedRoute`, `/admin` behind `AdminRoute`, and `*` (404). The cart itself is public - a guest can fill one - but checkout requires a session.
+
+**Cart state.** `context/CartProvider.jsx` holds the cart and persists it to `localStorage` under `smweb-lab-cart-v1`. Stored entries are read defensively: unparseable JSON, non-array values, duplicate ids and junk quantities are discarded or repaired rather than trusted, so a corrupted value cannot stop the application from starting. The stored `price` and `stock` are display copies only; checkout sends nothing but product ids and quantities.
 
 **Authentication state.** `context/AuthProvider.jsx` holds the session; `context/auth-context.js` exposes the `useAuth` hook. The browser never holds the JWT - it stays in the HttpOnly cookie, and the provider keeps only the safe user object (`id`, `name`, `email`, `role`, `createdAt`). On mount it asks `/auth/me` who the cookie belongs to; a 401 there is the normal answer for a guest and resolves to `user: null`, while a transport failure is recorded separately so "not signed in" and "server unreachable" are never confused. Guards render nothing until that bootstrap settles, so a refresh never bounces a signed-in user to the login page and no authenticated UI flashes for a guest.
 
@@ -416,7 +435,7 @@ All HTTP goes through one Axios instance configured from `VITE_API_BASE_URL` wit
 
 UX bar: responsive header, consistent spacing and typography, explicit loading/empty/error states, useful API error messages, submit buttons disabled while a request is pending, confirmation before destructive admin actions, clear order status badges, a visually distinct admin area, a 404 page, no horizontal overflow at 320px and keyboard-usable forms.
 
-Days 12-13 add the cart and checkout, and the admin management screens.
+Day 13 adds the admin management screens.
 
 ---
 
@@ -493,7 +512,7 @@ There was never a bypass: no header, query parameter or environment flag opened 
 
 Day 06 created the four Mongoose models, `utils/slugify.js` and both `.env.example` files, and verified them with 77 assertions covering every field, constraint, default, enum, index flag and serialisation rule - including that no plaintext password path exists, that a registration payload cannot set `role: "admin"`, that `toJSON` strips `passwordHash`, and that an order item snapshot does not change when the source product changes.
 
-## 12. Current state after Day 11
+## 12. Current state after Day 12
 
 ```text
 project-02-mern-commerce/server/src/
@@ -519,6 +538,8 @@ Added and verified on Day 09: the React storefront foundation - Vite client, Rea
 Added and verified on Day 10: the catalogue interaction layer - `SearchBar`, `FilterPanel` (category, featured, sort), `Pagination`, and URL-backed catalogue state. Every control re-queries the API; nothing filters an already-loaded array.
 
 Added and verified on Day 11: frontend authentication - `AuthProvider` with `/auth/me` bootstrap, login and registration pages, logout, the account page, `ProtectedRoute` and `AdminRoute`, and an auth-aware header. The admin route currently guards a placeholder page so the guard itself is verifiable; the management screens are Day 13.
+
+Added and verified on Day 12: the purchase flow - `CartProvider` with localStorage persistence, add-to-cart on the catalogue and details pages, the cart page, the protected checkout, the three order endpoints, order history and order details. Server-side pricing, stock handling under concurrency, ownership and snapshot history were all verified against the running API.
 
 Two development-only scripts support local work and are documented as such:
 

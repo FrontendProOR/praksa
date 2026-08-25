@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import Container from "../components/Container.jsx";
 import Price from "../components/Price.jsx";
 import ProductImage from "../components/ProductImage.jsx";
+import AddToCartButton from "../components/AddToCartButton.jsx";
 import { ErrorState, LoadingState } from "../components/StateViews.jsx";
 import { useApiResource } from "../hooks/useApiResource.js";
 import { fetchProductBySlug } from "../api/products.js";
@@ -11,9 +12,9 @@ import "../styles/product-details.css";
 /**
  * Product details, loaded by the slug in the route.
  *
- * Only public product fields are shown. There is no add-to-cart control: the
- * cart is a later piece of work, and a disabled or fake button would promise
- * something the application cannot do yet.
+ * Only public product fields are shown. Adding to the cart is a local action:
+ * it does not reserve anything, and the server checks price and stock again
+ * when the order is placed.
  */
 function ProductDetailsPage() {
   const { slug } = useParams();
@@ -95,6 +96,8 @@ function ProductDetailsPage() {
             <p className={`stock-badge stock-badge--${stock.tone} product-details__stock`}>
               {stock.label}
             </p>
+
+            <AddToCartButton product={product} />
 
             <dl className="product-details__facts">
               <div>
