@@ -1,0 +1,463 @@
+/*
+  Administration area.
+
+  Visually separated from the storefront by a dark bar and a sunken page
+  ground, so it is never in doubt which side of the application is on screen.
+  It reuses the store's tokens and buttons rather than a second design system.
+
+  Breakpoints repeated from tokens.css: mobile <= 640px, tablet 641-1024px,
+  desktop >= 1025px.
+*/
+
+.admin {
+  background-color: var(--color-surface-alt);
+}
+
+/* --- Admin bar --------------------------------------------------------- */
+
+.admin__bar {
+  color: var(--color-on-ink);
+  background-color: var(--color-ink);
+  border-bottom: 1px solid var(--color-on-ink-border);
+}
+
+.admin__bar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-6);
+  padding-block: var(--space-3);
+}
+
+.admin__badge {
+  color: var(--color-on-ink);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.admin__nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin__nav-link {
+  display: inline-block;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-on-ink-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+
+.admin__nav-link:hover {
+  color: var(--color-on-ink);
+  background-color: var(--color-on-ink-border);
+}
+
+.admin__nav-link--active {
+  color: var(--color-ink);
+  background-color: var(--color-on-ink);
+}
+
+.admin__exit {
+  margin-inline-start: auto;
+  color: var(--color-on-ink-muted);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.admin__exit:hover {
+  color: var(--color-on-ink);
+}
+
+/* --- Page furniture ---------------------------------------------------- */
+
+.admin__intro {
+  margin-bottom: var(--space-8);
+}
+
+.admin__intro h1 {
+  margin-block: var(--space-2) var(--space-2);
+}
+
+.admin__intro .btn {
+  margin-top: var(--space-4);
+}
+
+.admin__block {
+  margin-top: var(--space-8);
+  padding: var(--space-6);
+}
+
+.admin__block-title {
+  margin-top: 0;
+  margin-bottom: var(--space-4);
+  font-size: var(--text-lg);
+}
+
+.admin__shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+}
+
+.admin__notice {
+  margin-bottom: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-success);
+  background-color: var(--color-success-soft);
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-md);
+}
+
+.admin__back {
+  margin-top: var(--space-6);
+}
+
+.admin__filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.admin__filter-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.admin__filter .form-field__control {
+  width: auto;
+  min-width: 12rem;
+}
+
+/* --- Dashboard --------------------------------------------------------- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stat-card {
+  padding: var(--space-5);
+}
+
+.stat-card__label {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.stat-card__value {
+  margin: var(--space-2) 0 var(--space-1);
+  color: var(--color-ink);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+}
+
+.stat-card__note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.status-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.status-breakdown dt {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.status-breakdown dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+}
+
+/* --- Tables ------------------------------------------------------------ */
+
+/* The wrapper scrolls, not the page: a wide table must never push the
+   document sideways on a narrow screen.
+
+   `position: relative` is load-bearing. The visually-hidden text that names
+   each row's actions is absolutely positioned; without a positioned ancestor
+   it resolves against the viewport, escapes this scroller entirely and drags
+   the whole page sideways. Making the wrapper its containing block keeps it
+   inside the scrolling box where it belongs. */
+.admin-table-wrap {
+  position: relative;
+  overflow-x: auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 44rem;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.admin-table th,
+.admin-table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table thead th {
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  background-color: var(--color-surface-alt);
+  white-space: nowrap;
+}
+
+.admin-table tbody tr:last-child th,
+.admin-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-table__name {
+  color: var(--color-ink);
+  font-weight: var(--weight-semibold);
+  min-width: 14rem;
+}
+
+.admin-table__zero {
+  color: var(--color-danger);
+  font-weight: var(--weight-semibold);
+}
+
+.admin-table__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.state-pill {
+  display: inline-block;
+  margin-right: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-pill);
+}
+
+.state-pill--on {
+  color: var(--color-success);
+  background-color: var(--color-success-soft);
+}
+
+.state-pill--off {
+  color: var(--color-muted);
+  background-color: var(--color-surface-sunken);
+}
+
+.state-pill--featured {
+  color: var(--color-accent-strong);
+  background-color: var(--color-accent-soft);
+}
+
+/* --- Buttons used only in the admin area -------------------------------- */
+
+.btn--sm {
+  min-height: 2.25rem;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+}
+
+.btn--danger {
+  color: var(--color-accent-contrast);
+  background-color: var(--color-danger);
+}
+
+.btn--danger:hover {
+  background-color: #8f1c17;
+}
+
+/* --- Forms ------------------------------------------------------------- */
+
+.admin-form {
+  padding: var(--space-6);
+}
+
+.admin-form-page .admin-form {
+  max-width: 52rem;
+}
+
+.admin-form__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0 var(--space-4);
+}
+
+.admin-form__flags {
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.admin-form__legend {
+  padding-inline: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.admin-form__checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.admin-form__checkbox input {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.admin-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.admin-form__error {
+  margin-bottom: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-danger);
+  background-color: var(--color-danger-soft);
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-md);
+}
+
+.admin-split {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* Grid items default to `min-width: auto`, so the column would refuse to
+   shrink below the table's minimum width and push the page sideways. */
+.admin-split > * {
+  min-width: 0;
+}
+
+@media (min-width: 1025px) {
+  .admin-split {
+    grid-template-columns: minmax(0, 1.6fr) minmax(20rem, 1fr);
+  }
+}
+
+/* --- Confirmation dialog ----------------------------------------------- */
+
+.confirm-dialog {
+  width: min(30rem, calc(100vw - 2rem));
+  padding: var(--space-6);
+  color: var(--color-body);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.confirm-dialog::backdrop {
+  background-color: rgba(15, 28, 34, 0.55);
+}
+
+.confirm-dialog__title {
+  margin-top: 0;
+  margin-bottom: var(--space-3);
+  font-size: var(--text-xl);
+}
+
+.confirm-dialog__message {
+  margin: 0;
+}
+
+.confirm-dialog__error {
+  margin-top: var(--space-4);
+  margin-bottom: 0;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-danger);
+  background-color: var(--color-danger-soft);
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+/* --- Order rows in the admin listing ----------------------------------- */
+
+.order-row__customer {
+  margin: var(--space-1) 0 0;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.order-row__status-control .form-field__control {
+  min-width: 12rem;
+}
+
+.order-row__final {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 640px) {
+  .admin__bar-inner {
+    align-items: flex-start;
+  }
+
+  .admin__exit {
+    margin-inline-start: 0;
+  }
+
+  .admin-form__actions .btn,
+  .admin__shortcuts .btn {
+    flex: 1 1 12rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .order-row--admin .order-row__status-control {
+    justify-self: end;
+  }
+}

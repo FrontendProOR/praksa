@@ -10,8 +10,13 @@ import CheckoutPage from "../pages/CheckoutPage.jsx";
 import OrdersPage from "../pages/OrdersPage.jsx";
 import OrderDetailsPage from "../pages/OrderDetailsPage.jsx";
 import AccountPage from "../pages/AccountPage.jsx";
-import AdminPage from "../pages/AdminPage.jsx";
 import NotFoundPage from "../pages/NotFoundPage.jsx";
+import AdminLayout from "../layouts/AdminLayout.jsx";
+import AdminDashboardPage from "../pages/admin/AdminDashboardPage.jsx";
+import AdminProductsPage from "../pages/admin/AdminProductsPage.jsx";
+import AdminProductFormPage from "../pages/admin/AdminProductFormPage.jsx";
+import AdminCategoriesPage from "../pages/admin/AdminCategoriesPage.jsx";
+import AdminOrdersPage from "../pages/admin/AdminOrdersPage.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import AdminRoute from "./AdminRoute.jsx";
 
@@ -20,12 +25,13 @@ import AdminRoute from "./AdminRoute.jsx";
  *
  * Public: home, catalogue, product details, login, register, cart.
  * Signed in: checkout, orders, order details, account.
- * Admin: the admin area.
+ * Admin: dashboard, product management, categories and orders.
  *
  * The cart itself is public - a guest can fill one - but checkout requires a
  * session, so the guard sends them to sign in and back again. The admin
- * management screens belong to later work; anything unknown falls through to
- * the 404.
+ * screens are nested inside one guard and one layout, so the navigation is
+ * written once and the guard cannot be forgotten on a new screen. Anything
+ * unknown falls through to the 404.
  */
 function AppRoutes() {
   return (
@@ -46,7 +52,14 @@ function AppRoutes() {
         </Route>
 
         <Route element={<AdminRoute />}>
-          <Route path="admin" element={<AdminPage />} />
+          <Route path="admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboardPage />} />
+            <Route path="products" element={<AdminProductsPage />} />
+            <Route path="products/new" element={<AdminProductFormPage />} />
+            <Route path="products/:id/edit" element={<AdminProductFormPage />} />
+            <Route path="categories" element={<AdminCategoriesPage />} />
+            <Route path="orders" element={<AdminOrdersPage />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

@@ -2,7 +2,7 @@
 
 React + Vite single-page application for the MERN Commerce project. It reads the catalogue from the Express API; nothing on the page is hardcoded product data.
 
-> **Status (Day 12):** storefront with catalogue controls, account flows, and the full purchase flow - cart, checkout, order history and order details. The admin management screens are added on Day 13.
+> **Status (Day 13):** storefront with catalogue controls, account flows, the full purchase flow - cart, checkout, order history and order details - and the protected admin area for products, categories and orders.
 
 ## Prerequisites
 
@@ -44,9 +44,10 @@ src/
 ├── hooks/        useApiResource - loading/error/data with request cancellation
 │                 useCatalogParams - catalogue state read from and written to the URL
 ├── layouts/      StoreLayout - skip link, header, <main>, footer
+│                 AdminLayout - admin bar and nested management screens
 ├── pages/        Home, Catalog, ProductDetails, Login, Register, Cart,
-│                 Checkout, Orders, OrderDetails, Account,
-│                 Admin (placeholder), NotFound
+│                 Checkout, Orders, OrderDetails, Account, NotFound
+│   └── admin/    Dashboard, Products, ProductForm, Categories, Orders
 ├── routes/       AppRoutes, ProtectedRoute, AdminRoute
 ├── styles/       design tokens, base layer, one stylesheet per component
 └── utils/        format.js, catalogQuery.js (parse/sanitise/serialise catalogue state)
@@ -67,6 +68,18 @@ On startup `AuthProvider` calls `/auth/me` to find out whether the cookie belong
 `ProtectedRoute` sends a guest to `/login` and remembers where they were going; `AdminRoute` additionally requires the `admin` role and tells a signed-in non-admin plainly that the page is not for them. **Both are conveniences.** The API authorises every request on its own - hiding a link or a route protects nothing.
 
 Registration always creates a `user`: the form has no role control, and the API ignores a role sent in the body.
+
+## Admin area
+
+`/admin` and everything under it sit behind `AdminRoute` and render inside `AdminLayout`, which adds a dark admin bar so it is never in doubt which side of the application is on screen. The screens are the dashboard, the product table, the shared create/edit product form, category management and order management.
+
+Every figure on the dashboard comes from `/api/admin/stats`, which counts documents in MongoDB - nothing is a placeholder. Product and category mutations reuse the existing admin-protected `/api/products` and `/api/categories` routes rather than a duplicate admin CRUD surface.
+
+Destructive actions go through a confirmation dialog built on the native `<dialog>` element, so the browser supplies the modal semantics, focus trap and Escape-to-close. The message names what is about to be deleted, and focus opens on *Cancel* so a stray Enter deletes nothing. After a successful mutation the affected list is refetched from the server rather than patched locally, so the screen shows what the database holds.
+
+Server errors are shown as they are. A duplicate SKU or category name lands on the field that collided; deleting a category that active products still use is refused by the API with 409 and that refusal is displayed, with the products left where they are.
+
+Category management has no active/inactive switch: the category listing endpoint is public and returns active categories only, so deactivating one here would remove it from the list needed to restore it.
 
 ## Cart
 

@@ -30,3 +30,26 @@ export async function fetchProductBySlug(slug, { signal } = {}) {
   });
   return unwrap(response).data.product;
 }
+
+/**
+ * Admin: creates a product. The route is already admin-protected, so there is
+ * no separate admin endpoint for it.
+ *
+ * @param {object} payload full product body
+ */
+export async function createProduct(payload) {
+  const response = await apiClient.post('/products', payload);
+  return unwrap(response).data.product;
+}
+
+/** Admin: full update of an existing product. */
+export async function updateProduct(id, payload) {
+  const response = await apiClient.put(`/products/${encodeURIComponent(id)}`, payload);
+  return unwrap(response).data.product;
+}
+
+/** Admin: permanently deletes a product. */
+export async function deleteProduct(id) {
+  const response = await apiClient.delete(`/products/${encodeURIComponent(id)}`);
+  return unwrap(response).data;
+}

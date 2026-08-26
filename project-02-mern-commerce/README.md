@@ -2,8 +2,8 @@
 
 A scoped e-commerce application built on the MERN stack: **MongoDB, Express.js, React and Node.js**. It is the main project of the 2026 internship and demonstrates data modelling, a REST API with CRUD, JWT authentication in an HttpOnly cookie, a React storefront and admin area, and end-to-end functional testing.
 
-> **Status: full purchase flow (Day 12).** Catalogue, authentication, cart, checkout and order history all work end to end against MongoDB.
-> The admin management screens are added on Day 13, and the final setup/seed/test documentation on Day 15.
+> **Status: complete feature set (Day 13).** Catalogue, authentication, cart, checkout, order history and the admin management area all work end to end against MongoDB.
+> Systematic testing and security verification follow on Day 14, and the final setup/seed/test documentation on Day 15.
 
 ---
 
@@ -71,6 +71,14 @@ curl "http://localhost:5000/api/products?page=1&limit=12&sort=newest"
 | POST | `/api/orders` | authenticated - server prices the order and takes stock |
 | GET | `/api/orders/mine` | authenticated - own orders only |
 | GET | `/api/orders/:id` | authenticated - own order, or any order for an admin |
+| GET | `/api/admin/stats` | **admin only** - dashboard counts and demo revenue |
+| GET | `/api/admin/products` | **admin only** - includes inactive products |
+| GET | `/api/admin/orders` | **admin only** - every customer's orders, filterable by `status` |
+| PATCH | `/api/admin/orders/:id/status` | **admin only** - status transitions only |
+
+Creating, editing and deleting products and categories reuse the admin-protected
+`/api/products` and `/api/categories` routes. There is deliberately no second set
+of admin CRUD endpoints to keep in step.
 
 ## Authentication
 
@@ -101,7 +109,7 @@ npm run dev      # http://localhost:5173
 
 The client reads `VITE_API_BASE_URL` from `client/.env`. Its port must match the API's `CLIENT_ORIGIN`, because CORS only allows the configured origin - starting the client on another port is correctly rejected by the API.
 
-Pages available today: home, catalogue, product details, login, registration, cart, checkout, order history, order details, account and a 404 page. See [`client/README.md`](client/README.md).
+Pages available today: home, catalogue, product details, login, registration, cart, checkout, order history, order details, account, the admin area (dashboard, products, product form, categories, orders) and a 404 page. See [`client/README.md`](client/README.md).
 
 ## Development data
 
@@ -122,3 +130,10 @@ npm run check:models         # registers all four models; no database connection
 - Stock is taken with a conditional atomic update, so two buyers racing for the last unit cannot both succeed and stock never goes negative. MongoDB here is standalone, so there are no transactions - the sequence compensates instead, and that limitation is documented rather than hidden.
 - Passwords are stored only as bcrypt hashes and are never returned by the API.
 - Registration always creates the `user` role; admin accounts come from the seed script.
+- The React `AdminRoute` guard is convenience only. Authorisation lives on the server: every `/api/admin/*` route and every product/category mutation runs `authenticate` then `authorize("admin")`, and the role is read from the user record loaded for the session cookie - never from a request body, header, query parameter or anything in the browser.
+- Order status changes follow a fixed transition map; `delivered` and `cancelled` are final. Only `orderStatus` is written - items, totals, payment status and the owner are not editable there.
+- Dashboard "demo revenue" is the sum of orders that are not cancelled. It is labelled as demo money in the UI: nothing has actually been charged, and cash-on-delivery orders are counted before any payment.
+
+### Known limitation
+
+Category management has no active/inactive switch. The category listing endpoint is the public one and returns active categories only, so deactivating a category from the admin screen would remove it from the list needed to restore it. Categories are created active; the status column still reports what the record holds.

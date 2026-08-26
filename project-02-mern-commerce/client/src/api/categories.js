@@ -15,3 +15,26 @@ export async function fetchCategories({ signal } = {}) {
   const response = await apiClient.get("/categories", { signal });
   return unwrap(response).data.categories ?? [];
 }
+
+/** Admin: creates a category. */
+export async function createCategory(payload) {
+  const response = await apiClient.post('/categories', payload);
+  return unwrap(response).data.category;
+}
+
+/** Admin: updates a category. */
+export async function updateCategory(id, payload) {
+  const response = await apiClient.put(`/categories/${encodeURIComponent(id)}`, payload);
+  return unwrap(response).data.category;
+}
+
+/**
+ * Admin: deletes a category.
+ *
+ * The API refuses with 409 CONFLICT while active products still reference it;
+ * that error is shown to the administrator rather than worked around.
+ */
+export async function deleteCategory(id) {
+  const response = await apiClient.delete(`/categories/${encodeURIComponent(id)}`);
+  return unwrap(response).data;
+}
