@@ -2,8 +2,8 @@
 
 A scoped e-commerce application built on the MERN stack: **MongoDB, Express.js, React and Node.js**. It is the main project of the 2026 internship and demonstrates data modelling, a REST API with CRUD, JWT authentication in an HttpOnly cookie, a React storefront and admin area, and end-to-end functional testing.
 
-> **Status: complete feature set (Day 13).** Catalogue, authentication, cart, checkout, order history and the admin management area all work end to end against MongoDB.
-> Systematic testing and security verification follow on Day 14, and the final setup/seed/test documentation on Day 15.
+> **Status: verified (Day 14).** Catalogue, authentication, cart, checkout, order history and the admin management area all work end to end against MongoDB, and the whole system has been through a full regression, responsive, accessibility and security pass.
+> The final seed data and delivery documentation follow on Day 15.
 
 ---
 
@@ -110,6 +110,22 @@ npm run dev      # http://localhost:5173
 The client reads `VITE_API_BASE_URL` from `client/.env`. Its port must match the API's `CLIENT_ORIGIN`, because CORS only allows the configured origin - starting the client on another port is correctly rejected by the API.
 
 Pages available today: home, catalogue, product details, login, registration, cart, checkout, order history, order details, account, the admin area (dashboard, products, product form, categories, orders) and a 404 page. See [`client/README.md`](client/README.md).
+
+## Tests
+
+```bash
+cd server && npm test    # critical backend flows (Node test runner + supertest)
+cd client && npm test    # forms, cart, route guards and API states (Vitest + Testing Library)
+```
+
+The backend suite runs against its own database, `smweb_mern_commerce_test`, and
+clears it before and after each run, so it never touches development data. It
+sets `NODE_ENV=test`, which disables both rate limiters - they are verified
+separately by a check that enables them deliberately.
+
+See [`../docs/manual-test-checklist.md`](../docs/manual-test-checklist.md) for the
+repeatable manual pass, and [`../docs/api-reference.md`](../docs/api-reference.md)
+for the full endpoint reference.
 
 ## Development data
 

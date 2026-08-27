@@ -39,6 +39,7 @@ function ProductDetailsPage() {
       <section className="section">
         <Container>
           <ErrorState
+            headingLevel={1}
             title={notFound ? "Proizvod nije pronađen" : "Proizvod nije učitan"}
             message={
               notFound

@@ -197,6 +197,7 @@ function AdminProductFormPage() {
       <section className="section">
         <Container>
           <ErrorState
+            headingLevel={1}
             title="Proizvod nije pronađen"
             message="Traženi proizvod ne postoji ili je obrisan."
           />

@@ -114,8 +114,8 @@ Prerequisites for the whole repository:
 | [`project-01-agency-site/README.md`](project-01-agency-site/README.md) | Project 1 setup: prerequisites, install and run commands, structure, contact form rules |
 | [`docs/project-02-requirements.md`](docs/project-02-requirements.md) | MERN Commerce requirements and architecture: roles, layers, MongoDB data model, relationships, indexes, REST API surface, cart and order rules, environment configuration |
 | [`project-02-mern-commerce/README.md`](project-02-mern-commerce/README.md) | Project 2 overview, current status and model verification command |
-
-Further documents (API reference, manual test checklist) are added on their scheduled days.
+| [`docs/api-reference.md`](docs/api-reference.md) | Complete REST API reference: conventions, error codes, rate limits, every endpoint with its authorization, parameters, responses and errors - plus the endpoints that deliberately do not exist |
+| [`docs/manual-test-checklist.md`](docs/manual-test-checklist.md) | Repeatable manual verification procedure: environment startup, API checklist, storefront, authentication, cart, checkout, orders, admin, responsive, accessibility, error handling and cleanup |
 
 ---
 

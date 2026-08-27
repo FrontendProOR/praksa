@@ -108,6 +108,13 @@ function CatalogPage() {
             />
           ) : (
             <>
+              {/* The product titles in the grid are h3. Without this the page
+                  jumped straight from the h1 to an h3, which is a broken
+                  outline for anyone navigating by heading. It is visually
+                  hidden because the count line below already labels the
+                  results on screen. */}
+              <h2 className="visually-hidden">Rezultati</h2>
+
               <p className="catalog__count" role="status">
                 {meta?.totalItems === 1
                   ? "1 proizvod"

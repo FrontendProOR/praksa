@@ -56,25 +56,35 @@ function OrderDetailsPage() {
   if (error) {
     const notFound = error.isNotFound;
     const forbidden = error.code === "FORBIDDEN";
+    // A malformed id in the address bar is a validation failure, and the API's
+    // own wording for it is English and technical. Everything the user can act
+    // on is said here instead; other failures still show the server's message.
+    const badId = error.code === "VALIDATION_ERROR";
+
     return (
       <section className="section">
         <Container className="orders">
           <ErrorState
+            headingLevel={1}
             title={
               forbidden
                 ? "Nemate pristup ovoj narudžbi"
                 : notFound
                   ? "Narudžba nije pronađena"
-                  : "Narudžba nije učitana"
+                  : badId
+                    ? "Neispravan broj narudžbe"
+                    : "Narudžba nije učitana"
             }
             message={
               forbidden
                 ? "Možete pregledati samo vlastite narudžbe."
                 : notFound
                   ? "Tražena narudžba ne postoji."
-                  : error.message
+                  : badId
+                    ? "Adresa ne sadrži ispravan broj narudžbe. Otvorite narudžbu iz pregleda."
+                    : error.message
             }
-            onRetry={notFound || forbidden ? undefined : reload}
+            onRetry={notFound || forbidden || badId ? undefined : reload}
           />
           <p className="orders__back">
             <Link className="btn btn--secondary" to="/orders">

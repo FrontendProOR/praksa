@@ -38,6 +38,7 @@ function AdminRoute() {
       <section className="section">
         <Container>
           <ErrorState
+            headingLevel={1}
             title="Pristup nije dozvoljen"
             message="Ova stranica je dostupna samo administratorima."
           />
