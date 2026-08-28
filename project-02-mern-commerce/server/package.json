@@ -12,8 +12,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "node --test --test-concurrency=1 tests/*.test.js",
-    "seed:admin": "node src/seeds/create-admin.js",
-    "seed:dev-catalogue": "node src/seeds/dev-catalogue.js"
+    "seed:demo": "node src/seeds/demo.js",
+    "seed:admin": "node src/seeds/create-admin.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

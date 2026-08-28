@@ -2,7 +2,7 @@
 
 React + Vite single-page application for the MERN Commerce project. It reads the catalogue from the Express API; nothing on the page is hardcoded product data.
 
-> **Status (Day 13):** storefront with catalogue controls, account flows, the full purchase flow - cart, checkout, order history and order details - and the protected admin area for products, categories and orders.
+> **Status: complete and verified.** Storefront with catalogue controls, account flows, the full purchase flow - cart, checkout, order history and order details - and the protected admin area for products, categories and orders.
 
 ## Prerequisites
 
@@ -32,6 +32,8 @@ npm run dev
 | `npm run build` | production build into `dist/` |
 | `npm run preview` | serve the built output (use port 5173 so it matches the API's `CLIENT_ORIGIN`) |
 | `npm run lint` | oxlint |
+| `npm test` | component and behaviour tests (Vitest + Testing Library) |
+| `npm run test:watch` | the same tests in watch mode |
 
 ## Structure
 
@@ -49,6 +51,7 @@ src/
 │                 Checkout, Orders, OrderDetails, Account, NotFound
 │   └── admin/    Dashboard, Products, ProductForm, Categories, Orders
 ├── routes/       AppRoutes, ProtectedRoute, AdminRoute
+├── tests/        setup plus login-validation, cart, route-guard and API-state tests
 ├── styles/       design tokens, base layer, one stylesheet per component
 └── utils/        format.js, catalogQuery.js (parse/sanitise/serialise catalogue state)
 ```
@@ -101,11 +104,11 @@ reproduces exactly the same result set for anyone who opens it. Refresh and the 
 
 Unsupported values are repaired rather than rejected: an unknown `sort` falls back to `newest` and an invalid `page` to 1, matching the API's own behaviour. Changing a filter resets to page 1; changing the page keeps the filters.
 
-## Local data
+## Demo data
 
-If the catalogue is empty, load the development fixtures from the server package:
+If the catalogue is empty, load the demo fixture from the server package:
 
 ```bash
 cd ../server
-npm run seed:dev-catalogue
+npm run seed:demo
 ```

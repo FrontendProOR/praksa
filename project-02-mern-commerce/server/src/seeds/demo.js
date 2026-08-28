@@ -1,16 +1,35 @@
 /**
- * Development catalogue fixtures.
+ * Demo seed - the deliverable fixture for presenting the application.
  *
- * Gives the local database enough categories and products to build and check
- * the storefront against real API data. Run it by hand:
+ *   npm run seed:demo
  *
- *   npm run seed:dev-catalogue
+ * Loads the two demo accounts and the whole catalogue in one step, so a
+ * reviewer can go from an empty database to a working demo with a single
+ * command.
  *
- * This is NOT the deliverable seed script. Day 15 implements the full
- * deterministic seed from Section 14 of CLAUDE.md (admin user, demo user,
- * categories, products and demo orders). This file only covers the catalogue,
- * touches no user or order data, and is safe to re-run: it clears the two
- * catalogue collections first, so it never creates duplicate-key failures.
+ * **Deterministic.** The same categories, products, prices and stock every
+ * time - no random data, so screenshots and test expectations stay stable.
+ *
+ * **Safe to re-run.** Categories and products are cleared and reloaded, and
+ * the two demo accounts are upserted by email. Re-running therefore resets the
+ * demo to a known state rather than failing on a duplicate key.
+ *
+ * What it deliberately does NOT touch:
+ *
+ * - **other user accounts** - only the two documented demo addresses are
+ *   written, so a re-run cannot delete accounts someone else created;
+ * - **orders** - an order stores its own name, SKU and price snapshots, so
+ *   past orders stay readable even after the catalogue is reloaded. Clearing
+ *   them is left to the reviewer (see the README), because deleting somebody's
+ *   order history is not something a seed should decide.
+ *
+ * No demo orders are created. Section 14 of CLAUDE.md lists them as optional,
+ * and the presentation path creates a real one during the walkthrough, which
+ * demonstrates the server-side pricing far better than a pre-inserted row.
+ *
+ * **Passwords** come from the environment, with documented development
+ * defaults so the command works out of the box on a local machine. They are
+ * never printed. See the README for how to override them.
  *
  * All product data is fictional. Nothing here makes a medical or efficacy
  * claim - the items are ordinary laboratory glassware and consumables.
@@ -20,6 +39,31 @@ import { assertConfig, config, isProduction } from "../config/env.js";
 import { connectDatabase, disconnectDatabase, describeConnection } from "../config/db.js";
 import Category from "../models/Category.js";
 import Product from "../models/Product.js";
+import User from "../models/User.js";
+import { hashPassword, PASSWORD_PATTERN, PASSWORD_RULE_MESSAGE } from "../utils/password.js";
+
+/**
+ * The two demo accounts.
+ *
+ * These are development credentials for a local demo database and nothing
+ * else. The defaults exist so `npm run seed:demo` works immediately after a
+ * clone; override them with the environment variables for any shared machine.
+ * The seed refuses to run against NODE_ENV=production regardless.
+ */
+const DEMO_USERS = [
+  {
+    role: "admin",
+    name: "Demo Administrator",
+    email: (process.env.DEMO_ADMIN_EMAIL ?? "admin@smweb.local").trim().toLowerCase(),
+    password: process.env.DEMO_ADMIN_PASSWORD ?? "DemoAdmin123",
+  },
+  {
+    role: "user",
+    name: "Demo Kupac",
+    email: (process.env.DEMO_USER_EMAIL ?? "kupac@smweb.local").trim().toLowerCase(),
+    password: process.env.DEMO_USER_PASSWORD ?? "DemoKupac123",
+  },
+];
 
 const CATEGORIES = [
   {
@@ -241,11 +285,52 @@ const PRODUCTS = [
   },
 ];
 
+/**
+ * Creates or resets the two demo accounts.
+ *
+ * Upsert by email, so re-running restores the documented password instead of
+ * failing on the unique index. The admin role is set here, directly in the
+ * database - there is no API route that grants it, and public registration
+ * always produces a `user`.
+ */
+async function seedUsers() {
+  for (const account of DEMO_USERS) {
+    if (!PASSWORD_PATTERN.test(account.password)) {
+      throw new Error(
+        `The password supplied for ${account.email} is too weak. ${PASSWORD_RULE_MESSAGE}.`,
+      );
+    }
+  }
+
+  const summary = [];
+  for (const account of DEMO_USERS) {
+    const passwordHash = await hashPassword(account.password);
+    const existing = await User.findOne({ email: account.email });
+
+    if (existing) {
+      existing.name = account.name;
+      existing.role = account.role;
+      existing.passwordHash = passwordHash;
+      await existing.save();
+      summary.push(`${account.email} (${account.role}, reset)`);
+    } else {
+      await User.create({
+        name: account.name,
+        email: account.email,
+        passwordHash,
+        role: account.role,
+      });
+      summary.push(`${account.email} (${account.role}, created)`);
+    }
+  }
+  return summary;
+}
+
 async function main() {
   assertConfig();
 
   if (isProduction) {
-    throw new Error("Refusing to load development fixtures while NODE_ENV=production.");
+    throw new Error("Refusing to load demo data while NODE_ENV=production.");
   }
 
   await connectDatabase(config.mongodbUri);
@@ -275,11 +360,39 @@ async function main() {
       `${products.filter((p) => p.stock === 0).length} out of stock).`,
   );
 
+  const accounts = await seedUsers();
+  for (const line of accounts) console.log(`Demo account: ${line}`);
+  console.log("Passwords are not printed here.");
+
+  // The built-in defaults exist so the command works straight after a clone.
+  // They are documented, local-only demo credentials - but say so out loud
+  // rather than letting anyone assume they are private.
+  if (!process.env.DEMO_ADMIN_PASSWORD || !process.env.DEMO_USER_PASSWORD) {
+    console.log(
+      "\nNote: the built-in demo passwords from the README are in use. They are\n" +
+        "documented development credentials for a local demo database. Set\n" +
+        "DEMO_ADMIN_PASSWORD and DEMO_USER_PASSWORD to use your own.",
+    );
+  }
+
+  const orders = await mongoose.connection.collection("orders").countDocuments();
+  if (orders > 0) {
+    console.log(
+      `Note: ${orders} existing order(s) were left untouched. They keep their own ` +
+        "name, SKU and price snapshots, so they still read correctly.",
+    );
+  }
+
+  console.log(
+    `\nDemo data ready. ${active} active products across ${categories.length} categories ` +
+      `- enough for ${Math.ceil(active / 12)} catalogue pages at the default page size.`,
+  );
+
   await disconnectDatabase();
 }
 
 main().catch(async (error) => {
-  console.error(`Development catalogue seed failed: ${error.message}`);
+  console.error(`Demo seed failed: ${error.message}`);
   if (mongoose.connection.readyState !== 0) await disconnectDatabase();
   process.exit(1);
 });

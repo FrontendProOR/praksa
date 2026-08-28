@@ -9,14 +9,36 @@ import "../styles/auth.css";
 /**
  * Sign-in page.
  *
- * The API answers a wrong password and an unknown email with the same generic
- * message; that message is shown as-is, so the page never reveals which
+ * The API answers a wrong password and an unknown email identically, and the
+ * message shown here is equally vague, so the page never reveals which
  * addresses are registered.
  *
  * On success the user is returned to wherever the protected route sent them
  * from, or to the account page.
  */
 const EMPTY = { email: "", password: "" };
+
+/**
+ * Turns an API failure into a message in the interface language.
+ *
+ * The API answers in English, which is right for a REST contract but wrong to
+ * put in front of a user reading a Serbian page. The wording for a failed sign
+ * in stays deliberately vague - the server does not say whether the address is
+ * registered, and neither does this.
+ */
+function loginErrorMessage(error) {
+  switch (error.code) {
+    case "UNAUTHORIZED":
+      return "Pogrešna email adresa ili lozinka.";
+    case "VALIDATION_ERROR":
+      return "Provjerite unesene podatke.";
+    case "FORBIDDEN":
+      // The rate limiter answers with FORBIDDEN + HTTP 429.
+      return "Previše pokušaja prijave. Sačekajte nekoliko minuta i pokušajte ponovo.";
+    default:
+      return error.message;
+  }
+}
 
 function LoginPage() {
   const { login, isAuthenticated, authReady } = useAuth();
@@ -87,7 +109,7 @@ function LoginPage() {
           Object.fromEntries(details.map((detail) => [detail.field, detail.message])),
         );
       }
-      setFormError(error.message);
+      setFormError(loginErrorMessage(error));
     } finally {
       inFlightRef.current = false;
       setIsSubmitting(false);

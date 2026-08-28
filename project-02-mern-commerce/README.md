@@ -127,15 +127,62 @@ See [`../docs/manual-test-checklist.md`](../docs/manual-test-checklist.md) for t
 repeatable manual pass, and [`../docs/api-reference.md`](../docs/api-reference.md)
 for the full endpoint reference.
 
-## Development data
+## Demo data
+
+One command takes an empty database to a working demo:
 
 ```bash
 cd server
-npm run seed:dev-catalogue   # fictional categories and products for local work
-npm run check:models         # registers all four models; no database connection needed
+npm run seed:demo
 ```
 
-`seed:dev-catalogue` clears and reloads only the catalogue collections, so it is safe to re-run. It is a development fixture, not the deliverable seed - Day 15 implements that.
+It loads 3 categories, 16 fictional products and the two demo accounts. The data
+is **deterministic** - the same products, prices and stock every time, so
+screenshots and test expectations stay stable - and the command is **safe to
+re-run**: categories and products are cleared and reloaded, and the two demo
+accounts are upserted by email, so a second run resets the demo instead of
+failing on a duplicate key.
+
+What it deliberately leaves alone:
+
+- **other user accounts** - only the two documented demo addresses are written,
+  so re-seeding cannot delete an account someone else created;
+- **orders** - each order stores its own name, SKU and price snapshots, so past
+  orders still read correctly after the catalogue is reloaded. To start a demo
+  with no order history, clear the collection yourself in MongoDB Compass or
+  with `db.orders.deleteMany({})`.
+
+No demo orders are seeded. Section 14 of `CLAUDE.md` lists them as optional, and
+the presentation walkthrough creates a real one, which demonstrates the
+server-side pricing far better than a pre-inserted row.
+
+The catalogue is sized to demonstrate the whole storefront: 15 active products
+(2 pages at the default page size of 12), 3 categories, 3 featured items, one
+product out of stock, one inactive product that must not appear publicly, and
+prices from 4.50 to 268.00 KM so sorting is visible.
+
+### Demo accounts
+
+| Role | Email | Password | Override with |
+|---|---|---|---|
+| admin | `admin@smweb.local` | `DemoAdmin123` | `DEMO_ADMIN_EMAIL`, `DEMO_ADMIN_PASSWORD` |
+| user | `kupac@smweb.local` | `DemoKupac123` | `DEMO_USER_EMAIL`, `DEMO_USER_PASSWORD` |
+
+**These are local development credentials for a demo database and nothing
+else.** They exist so `npm run seed:demo` works immediately after a clone. On
+any shared machine, override them:
+
+```bash
+DEMO_ADMIN_EMAIL=you@example.com DEMO_ADMIN_PASSWORD='YourStrongPass123' npm run seed:demo
+```
+
+Passwords are validated against the same strength rule as registration, are
+stored only as bcrypt hashes, and are never printed by the script. The seed
+refuses to run while `NODE_ENV=production`.
+
+```bash
+npm run check:models         # registers all four models; no database connection needed
+```
 
 ## Key rules
 

@@ -55,50 +55,177 @@ The stack is fixed by the internship confirmation. TypeScript, Next.js, NestJS, 
 
 ## Repository structure
 
-The structure is created progressively - each project folder appears on the day its work starts.
+Final structure:
 
 ```text
 .
 ├── CLAUDE.md                     # authoritative specification and day-by-day progress tracker
 ├── README.md
 ├── .gitignore
+├── LICENSE
 ├── docs/
-│   ├── day-01-onboarding.md      # Day 01 - workflow, scopes, MERN objective, tooling
-│   ├── day-02-mern-notes.md      # Day 02
+│   ├── day-01-onboarding.md      # workflow, scopes, MERN objective, tooling
+│   ├── day-02-mern-notes.md      # environment versions and MERN concept notes
 │   ├── project-01-requirements.md
+│   ├── project-01-qa-notes.md
 │   ├── project-02-requirements.md
-│   ├── api-reference.md
-│   └── manual-test-checklist.md
-├── project-01-agency-site/       # Days 03-05 - React + Vite
+│   ├── api-reference.md          # complete REST API reference
+│   ├── delivery-notes.md         # handover: architecture, security, demo order
+│   └── manual-test-checklist.md  # repeatable manual verification procedure
+├── project-01-agency-site/       # Days 03-05 - React + Vite, frontend only
 └── project-02-mern-commerce/     # Days 06-15
     ├── server/                   # Express + MongoDB REST API
+    │   ├── src/                  # config, models, routes, controllers,
+    │   │                         # services, middleware, utils, seeds
+    │   └── tests/                # backend flows (Node test runner + supertest)
     └── client/                   # React storefront and admin area
+        └── src/                  # api, components, context, hooks, layouts,
+                                  # pages, routes, styles, tests, utils
 ```
 
 ---
 
-## Setup
+## Prerequisites
 
-Each project has its own `package.json` and its own `README.md` with the full command list.
+- **Node.js 20.19+** (developed and verified on Node 24) and npm
+- **Git**
+- **MongoDB** running locally on `mongodb://127.0.0.1:27017`
+- Optional: MongoDB Compass to inspect the data, Postman for manual API calls
 
-**Project 1 - agency website** (complete):
+MongoDB must be running before the API starts. If it was installed from the
+Community ZIP rather than as a Windows service, it does not start on its own -
+start it by hand, for example:
+
+```bash
+"%LOCALAPPDATA%\mongodb-local\bin\mongod.exe" --dbpath "%LOCALAPPDATA%\mongodb-local\data" --bind_ip 127.0.0.1 --port 27017
+```
+
+---
+
+## Quick start
+
+Each project has its own `package.json` and `README.md`; this is the short path
+from a fresh clone to a running demo.
+
+### Project 1 - agency website
 
 ```bash
 cd project-01-agency-site
 npm install
-npm run dev      # development server
-npm run build    # production build
-npm run lint     # oxlint
+npm run dev      # http://localhost:5173
+npm run lint
+npm run build
 ```
 
-**Project 2 - MERN commerce** is created on Day 06 and will document its own install, environment, seed, run, test and build commands.
+No backend, no environment file, no database.
 
-Prerequisites for the whole repository:
+### Project 2 - MERN commerce
 
-- Node.js LTS and npm
-- Git
-- MongoDB running locally (or a documented connection string), with MongoDB Compass for inspection
-- Postman or an equivalent HTTP client for manual API testing
+**1. Configure.** Real `.env` files are git-ignored; copy the examples and fill
+in local values.
+
+```bash
+cd project-02-mern-commerce
+cp server/.env.example server/.env
+cp client/.env.example client/.env
+```
+
+`server/.env` needs a real `JWT_SECRET` of **at least 32 characters** - the
+server refuses to start with the placeholder, a short value, or none at all.
+Generate one:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+| Variable | Where | Purpose |
+|---|---|---|
+| `NODE_ENV` | server | `development`, `production` or `test` |
+| `PORT` | server | API port, default `5000` |
+| `MONGODB_URI` | server | connection string, default local database |
+| `JWT_SECRET` | server | signing key, min 32 characters, **never committed** |
+| `JWT_EXPIRES_IN` | server | session lifetime, default `60m` |
+| `CLIENT_ORIGIN` | server | the single origin CORS allows, default `http://localhost:5173` |
+| `VITE_API_BASE_URL` | client | API base URL; `VITE_*` values are public, so never put a secret here |
+
+**2. Install and seed.**
+
+```bash
+cd server && npm install
+npm run seed:demo          # 3 categories, 16 products, 2 demo accounts
+```
+
+**3. Run** (two terminals).
+
+```bash
+cd server && npm start     # http://localhost:5000/api
+cd client && npm install && npm run dev   # http://localhost:5173
+```
+
+Check `http://localhost:5000/api/health` - it should report
+`{"status":"ok","database":"connected"}`.
+
+The client port must match the API's `CLIENT_ORIGIN`; CORS allows that one
+origin only.
+
+**4. Sign in.** `npm run seed:demo` creates two local demo accounts:
+
+| Role | Email | Password |
+|---|---|---|
+| admin | `admin@smweb.local` | `DemoAdmin123` |
+| user | `kupac@smweb.local` | `DemoKupac123` |
+
+These are **local development credentials for a demo database and nothing
+else.** Override them with `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` /
+`DEMO_USER_EMAIL` / `DEMO_USER_PASSWORD` on any shared machine. There is no API
+route that grants the `admin` role - public registration always produces a
+`user`, and the role is set only by a seed script run against the database. To
+create or reset an admin with your own credentials:
+
+```bash
+cd server
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='YourStrongPass123' npm run seed:admin
+```
+
+Neither script prints a password.
+
+### Tests and builds
+
+```bash
+cd project-01-agency-site      && npm run lint && npm run build
+cd project-02-mern-commerce/server && npm test          # critical backend flows
+cd project-02-mern-commerce/client && npm test && npm run lint && npm run build
+```
+
+The backend suite uses its own database, `smweb_mern_commerce_test`, and clears
+it before and after each run, so it never touches demo data.
+
+---
+
+## Known limitations
+
+Honest scope boundaries, not defects:
+
+- **No real payments.** `card_demo` is a simulated choice; no card details are
+  ever requested, stored or charged, and cash-on-delivery is the other option.
+- **No multi-document transactions.** The local MongoDB is a standalone server,
+  which does not support them. Stock is taken with a conditional atomic update
+  that only matches while enough remains, and a compensating rollback if a later
+  step fails - safe against overselling, but not a true transaction.
+- **MongoDB must be started manually** when installed from the Community ZIP
+  rather than as a Windows service.
+- **Category management has no active/inactive switch.** The category listing
+  endpoint is the public one and returns active categories only, so deactivating
+  a category from the admin screen would remove it from the list needed to
+  restore it.
+- **Project 1's contact form is a demo.** It validates input and shows a success
+  state; it sends and stores nothing, by design - Project 1 has no backend.
+- **No image uploads.** Product images are URLs or paths; there is no upload
+  service.
+- **Single language.** The interface is in Bosnian/Serbian with no localisation
+  framework, and API error messages are in English.
+- **Not deployed.** Everything runs locally; there is no hosting, CI or
+  production environment.
 
 ---
 
@@ -113,8 +240,10 @@ Prerequisites for the whole repository:
 | [`docs/project-01-qa-notes.md`](docs/project-01-qa-notes.md) | Final manual QA pass for Project 1: build, sections, navigation, form cases, accessibility, responsive results and known limitations |
 | [`project-01-agency-site/README.md`](project-01-agency-site/README.md) | Project 1 setup: prerequisites, install and run commands, structure, contact form rules |
 | [`docs/project-02-requirements.md`](docs/project-02-requirements.md) | MERN Commerce requirements and architecture: roles, layers, MongoDB data model, relationships, indexes, REST API surface, cart and order rules, environment configuration |
-| [`project-02-mern-commerce/README.md`](project-02-mern-commerce/README.md) | Project 2 overview, current status and model verification command |
+| [`project-02-mern-commerce/README.md`](project-02-mern-commerce/README.md) | Project 2 in full: purpose, stack, architecture, configuration, endpoint overview, authentication, demo data and accounts, tests, builds and known limitations |
+| [`project-02-mern-commerce/client/README.md`](project-02-mern-commerce/client/README.md) | Storefront client: scripts, structure, API layer, authentication, admin area, cart and catalogue URL state |
 | [`docs/api-reference.md`](docs/api-reference.md) | Complete REST API reference: conventions, error codes, rate limits, every endpoint with its authorization, parameters, responses and errors - plus the endpoints that deliberately do not exist |
+| [`docs/delivery-notes.md`](docs/delivery-notes.md) | Handover summary: architecture, security model, test suites, the step-by-step demonstration order and known limitations |
 | [`docs/manual-test-checklist.md`](docs/manual-test-checklist.md) | Repeatable manual verification procedure: environment startup, API checklist, storefront, authentication, cart, checkout, orders, admin, responsive, accessibility, error handling and cleanup |
 
 ---

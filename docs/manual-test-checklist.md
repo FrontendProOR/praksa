@@ -26,8 +26,8 @@ Postman (or `curl`).
 - [ ] `cd server && npm start` prints `MongoDB connected` and `API listening on http://localhost:5000/api`.
 - [ ] `cd client && npm run dev` serves on `http://localhost:5173` (the port must match the API's `CLIENT_ORIGIN`).
 - [ ] `GET http://localhost:5000/api/health` → **200**, `database: "connected"`.
-- [ ] There is a catalogue to test with. If not: `cd server && npm run seed:dev-catalogue`.
-- [ ] There is an admin account. If not: `ADMIN_EMAIL=… ADMIN_PASSWORD=… npm run seed:admin`.
+- [ ] Demo data is loaded: `cd server && npm run seed:demo` (3 categories, 16 products, and the two demo accounts).
+- [ ] The admin account works. `npm run seed:demo` creates it; `ADMIN_EMAIL=… ADMIN_PASSWORD=… npm run seed:admin` creates or resets one with your own credentials.
 
 ### Negative startup checks
 
@@ -315,7 +315,7 @@ After testing, leave the database in its documented development state.
 - [ ] Delete their orders, and restore the stock those orders consumed.
 - [ ] Delete any products or categories created during the pass.
 - [ ] Confirm the admin account still works.
-- [ ] Optionally reload a clean catalogue: `cd server && npm run seed:dev-catalogue` (it clears and reloads only the catalogue collections, so it is safe to re-run).
+- [ ] Optionally reload a clean demo state: `cd server && npm run seed:demo` (it clears and reloads the catalogue and resets the two demo accounts, so it is safe to re-run; it leaves other accounts and all orders alone).
 - [ ] Confirm no `.env` file, secret or test artefact has been staged for commit: `git status`.
 
 ---

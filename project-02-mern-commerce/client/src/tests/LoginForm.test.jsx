@@ -123,9 +123,42 @@ describe("LoginPage validation", () => {
     await user.click(screen.getByRole("button", { name: /prijav/i }));
 
     const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent(/invalid email or password/i);
+    // The API answers in English; the page must show the interface language.
+    expect(alert).toHaveTextContent("Pogrešna email adresa ili lozinka.");
+    expect(alert).not.toHaveTextContent(/invalid email or password/i);
     // The user should not have to retype what they already entered.
     expect(screen.getByLabelText(/email/i)).toHaveValue("ana@example.com");
+  });
+
+  test("the failure message does not reveal whether the address is registered", async () => {
+    const user = userEvent.setup();
+    const failure = Object.assign(new Error("Invalid email or password"), {
+      code: "UNAUTHORIZED",
+      details: [],
+    });
+    renderLogin({ login: vi.fn().mockRejectedValue(failure) });
+
+    await user.type(screen.getByLabelText(/email/i), "nepostojeci@example.com");
+    await user.type(screen.getByLabelText(/lozink/i), "WrongPass123");
+    await user.click(screen.getByRole("button", { name: /prijav/i }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).not.toMatch(/ne postoji|nije registrovan|nepoznat/i);
+  });
+
+  test("a throttled sign-in explains the wait instead of showing a raw code", async () => {
+    const user = userEvent.setup();
+    const failure = Object.assign(new Error("Too many login attempts, please try again later"), {
+      code: "FORBIDDEN",
+      details: [],
+    });
+    renderLogin({ login: vi.fn().mockRejectedValue(failure) });
+
+    await user.type(screen.getByLabelText(/email/i), "ana@example.com");
+    await user.type(screen.getByLabelText(/lozink/i), "WrongPass123");
+    await user.click(screen.getByRole("button", { name: /prijav/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/previše pokušaja/i);
   });
 
   test("the password field is a real password input", () => {

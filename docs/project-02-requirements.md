@@ -546,7 +546,7 @@ Two development-only scripts support local work and are documented as such:
 | Script | Purpose |
 |---|---|
 | `npm run seed:admin` | creates or promotes one admin account from environment variables |
-| `npm run seed:dev-catalogue` | loads fictional categories and products so the storefront has real data to render |
+| `npm run seed:demo` | loads the deliverable demo fixture: 3 categories, 16 fictional products and the two demo accounts (deterministic and safe to re-run) |
 
 Neither is the deliverable seed: Day 15 implements the full deterministic seed from Section 14.
 

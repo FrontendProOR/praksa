@@ -16,6 +16,24 @@ import "../styles/auth.css";
  * The API starts the session on success, so the new account is signed in
  * immediately.
  */
+/**
+ * Turns an API failure into a message in the interface language. The API
+ * answers in English, which is correct for the contract but not something to
+ * show a user reading a Serbian page.
+ */
+function registerErrorMessage(error) {
+  switch (error.code) {
+    case "CONFLICT":
+      return "Nalog sa ovom email adresom već postoji.";
+    case "VALIDATION_ERROR":
+      return "Provjerite unesene podatke.";
+    case "FORBIDDEN":
+      return "Previše pokušaja. Sačekajte nekoliko minuta i pokušajte ponovo.";
+    default:
+      return error.message;
+  }
+}
+
 const EMPTY = { name: "", email: "", password: "" };
 
 // Mirrors the server's rule: at least 8 characters, one letter and one digit.
@@ -110,7 +128,7 @@ function RegisterPage() {
           email: "Nalog sa ovom email adresom već postoji.",
         }));
       }
-      setFormError(error.message);
+      setFormError(registerErrorMessage(error));
     } finally {
       inFlightRef.current = false;
       setIsSubmitting(false);
